@@ -7,10 +7,15 @@ LD_FLAGS= -L/usr/local/opt/libressl/lib -lcrypto
 %.o: %.cpp
 	$(CXX) $(CXX_FLAGS) -c $^
 
-main: Buffer.o Geometry.o Hash.o Node.o Query.o Utils.o main.o
-	$(CXX) $(LD_FLAGS) $^ -o main
+TestIndex: Buffer.o Geometry.o Hash.o Node.o Query.o Record.o Utils.o \
+	TestIndex.o
+	$(CXX) $(LD_FLAGS) $^ -o TestIndex
 
-all: main
+TestQuery: Buffer.o Geometry.o Hash.o Node.o Query.o Record.o Utils.o \
+	TestQuery.o
+	$(CXX) $(LD_FLAGS) $^ -o TestQuery
+
+all: TestIndex TestQuery
 
 cleanall:
-	-rm -f *.o main
+	-rm -f *.o TestIndex TestQuery

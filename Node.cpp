@@ -47,7 +47,11 @@ IntNode *make_internal(std::vector<Node*> &children) {
 }
 
 /**
- *
+ *  Builds a MR-tree from a list of records using a bulk-loading
+ *  (a.k.a packed) algorithm.
+ *  @param data list of records
+ *  @param c page capacity
+ *  @return a pointer to the root node of the tree
  */
 Node *packed(std::vector<Record> &data, size_t c) {
   std::vector<Node*> current;

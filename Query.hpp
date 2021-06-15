@@ -9,9 +9,10 @@
 #include "Node.hpp"
 
 /**
- *
+ *  A verification object may refer to a leaf node,
+ *  a pruned internal node or an explored subtree.
  */
-enum VObjectType {V_LEAF,V_PRUNED,V_CONTAINER};
+enum VObjectType {V_LEAF, V_PRUNED, V_CONTAINER};
 
 /**
  *  Base class for verification objects.

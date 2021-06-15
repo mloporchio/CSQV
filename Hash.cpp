@@ -9,7 +9,7 @@
 #include <sstream>
 
 /**
- *  Computes the SHA-256 digest of a generic buffer.
+ *  Computes the SHA-256 digest of an array of raw bytes.
  *  @param buf pointer to the buffer
  *  @param size length of the buffer
  *  @return the digest of the buffer
@@ -26,7 +26,7 @@ hash_t sha256(const uint8_t *buf, size_t size) {
 }
 
 /**
- *
+ *  
  */
 hash_t sha256(const Buffer &buf) {
   return sha256(buf.data(), buf.size());

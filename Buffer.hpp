@@ -11,7 +11,7 @@
 /**
  *
  */
-struct Buffer {
+class Buffer {
 private:
   std::vector<uint8_t> buf;
 public:
@@ -44,6 +44,7 @@ public:
     for (size_t i = 0; i < sizeof(T); i++) buf.push_back(ptr[i]);
     return *this;
   }
+
 };
 
 #endif

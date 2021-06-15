@@ -11,11 +11,11 @@
 #include <openssl/sha.h>
 #include <string>
 
-/// A digest is represented as a fixed-size array of bytes.
+/// A SHA-256 digest is represented as a fixed-size array of bytes.
 typedef std::array<uint8_t, SHA256_DIGEST_LENGTH> hash_t;
 
 /**
- *  Computes the SHA-256 digest of a generic buffer.
+ *  Computes the SHA-256 digest of an array of raw bytes.
  *  @param buf pointer to the buffer
  *  @param size length of the buffer
  *  @return the digest of the buffer
@@ -23,7 +23,7 @@ typedef std::array<uint8_t, SHA256_DIGEST_LENGTH> hash_t;
 hash_t sha256(const uint8_t *buf, size_t size);
 
 /**
- *
+ *  Computes the SHA-256 digest of
  */
 hash_t sha256(const Buffer &buf);
 
