@@ -26,6 +26,7 @@ int main(int argc, char **argv) {
   size_t capacity = atol(argv[2]);
   // Open the input file and parse its content.
   std::vector<Record> records = load_file(filename);
+  std::cout << "file loaded" << std::endl;
   // Build the MR-tree index.
   auto start = high_resolution_clock::now();
   Node *root = packed(records, capacity);

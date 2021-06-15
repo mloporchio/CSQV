@@ -18,10 +18,10 @@ std::vector<Record> load_file(const std::string &path) {
     // Read report identifier.
     std::string report_id = row["REPORT_ID"].get<>();
     // Read information about year, month, day and time.
-    uint32_t year = row["REPORT_ID"].get<uint32_t>();
-    std::string month = row["REPORT_ID"].get<>();
-    std::string day = row["REPORT_ID"].get<>();
-    std::string time = row["REPORT_ID"].get<>();
+    uint32_t year = row["Year"].get<uint32_t>();
+    std::string month = row["Month"].get<>();
+    std::string day = row["Day"].get<>();
+    std::string time = row["Time"].get<>();
     // Read location coordinates.
     double x = row["ACCLOC_X"].get<double>(),
     y = row["ACCLOC_Y"].get<double>();
