@@ -26,7 +26,6 @@ int main(int argc, char **argv) {
   size_t capacity = atol(argv[2]);
   // Open the input file and parse its content.
   std::vector<Record> records = load_file(filename);
-  std::cout << "file loaded" << std::endl;
   // Build the MR-tree index.
   auto start = high_resolution_clock::now();
   Node *root = packed(records, capacity);
@@ -37,7 +36,9 @@ int main(int argc, char **argv) {
     << std::endl;
     return 1;
   }
+  // Print information.
   Rectangle r = root -> getRect();
+  std::cout << "N. of records: " << records.size() << std::endl;
   std::cout << "MBR: (" <<
   r.lx << ", " << r.ly << ", " << r.ux << ", " << r.uy << ")" << std::endl;
   std::cout << "Hash: " << toHex(root -> getHash()) << std::endl;
