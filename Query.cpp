@@ -5,14 +5,9 @@
 
 #include "Query.hpp"
 #include <deque>
-#include <list>
 #include <map>
-#include <set>
 #include <stack>
-#include <memory>
 #include <utility>
-#include <iostream>
-#include <cassert>
 
 /**
  *  This function can be used to query the MR-tree index in order
