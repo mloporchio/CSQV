@@ -32,18 +32,17 @@ int main(int argc, char const *argv[]) {
   Node *root = packed(records, capacity);
   // Time the execution of the query algorithm.
   auto q_start = high_resolution_clock::now();
-  VObject *vo = query(root, query_rect);
+  VObject *vo = query_it(root, query_rect);
   auto q_stop = high_resolution_clock::now();
   auto q_duration = duration_cast<microseconds>(q_stop - q_start);
   // Time the execution of the verification algorithm.
   auto v_start = high_resolution_clock::now();
-  VResult *vr = verify(vo);
+  VResult *vr = verify_it(vo);
   auto v_stop = high_resolution_clock::now();
   auto v_duration = duration_cast<microseconds>(v_stop - v_start);
   // Print information.
   std::cout << "Hash: " << toHex(root->getHash()) << std::endl
   << "Reconstructed hash: " << toHex(vr->getHash()) << std::endl
-  << "Returned records: " << (vr->getData()).size() << std::endl
   << "Query time (us): " << q_duration.count() << std::endl
   << "Verification time (us): " << v_duration.count() << std::endl;
   // Before closing, free the memory occupied by the index.

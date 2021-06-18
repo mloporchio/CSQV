@@ -9,7 +9,11 @@
 #include <limits>
 
 /**
- *
+ *  "Strictly-less-than" comparison operator that can be used
+ *  to sort a list of points.
+ *  @param p a point to be compared
+ *  @return true if and only if the current point is strictly less than
+ *  the input point
  */
 bool Point::operator<(const Point &p) const {
   // If the x-coordinates are (approximately) equal, then compare on y.

@@ -12,8 +12,16 @@
  *  A point is represented by two real coordinates.
  */
 struct Point {
-  double x;
-  double y;
+  double x; ///< The x-coordinate of the point
+  double y; ///< The y-coordinate of the point
+
+  /**
+   *  "Strictly-less-than" comparison operator that can be used
+   *  to sort a list of points.
+   *  @param p a point to be compared
+   *  @return true if and only if the current point is strictly less than
+   *  the input point
+   */
   bool operator<(const Point &p) const;
 };
 
@@ -22,10 +30,10 @@ struct Point {
  *  and upper-right vertices.
  */
 struct Rectangle {
-  double lx;
-  double ly;
-  double ux;
-  double uy;
+  double lx; ///< The x-coordinate of the lower-left vertex
+  double ly; ///< The y-coordinate of the lower-left vertex
+  double ux; ///< The x-coordinate of the upper-right vertex
+  double uy; ///< The y-coordinate of the upper-right vertex
 };
 
 /**
@@ -73,5 +81,6 @@ Rectangle enlarge(const Rectangle &r, const Point &p);
  *  @return the minimum bounding rectangle of the input rectangles
  */
 Rectangle enlarge(const Rectangle &r, const Rectangle &s);
+
 
 #endif

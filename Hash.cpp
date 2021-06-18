@@ -26,7 +26,9 @@ hash_t sha256(const uint8_t *buf, size_t size) {
 }
 
 /**
- *  
+ *  Computes the SHA-256 digest of the input buffer.
+ *  @param buf reference to the buffer
+ *  @return the digest of the bytes contained in the buffer
  */
 hash_t sha256(const Buffer &buf) {
   return sha256(buf.data(), buf.size());
@@ -34,7 +36,7 @@ hash_t sha256(const Buffer &buf) {
 
 /**
  *  Computes the SHA-256 digest of a string.
- *  @param s string
+ *  @param s input string
  *  @return a digest of the string
  */
 hash_t sha256(const std::string &s) {

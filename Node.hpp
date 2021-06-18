@@ -10,43 +10,90 @@
 #include "Hash.hpp"
 #include "Record.hpp"
 
+/**
+ *  This enum defines the kind of a MR-tree node, which can be
+ *  either a leaf or an internal node.
+ */
 enum NodeType {N_LEAF, N_INT};
 
 /**
- *
+ *  This class represents a generic node of the MR-tree.
+ *  For each node we keep track of its type (either leaf or internal),
+ *  its MBR (i.e. the MBR of all records in the subtree) and its digest.
  */
 class Node {
 private:
-  NodeType type;
-  Rectangle rect;
-  hash_t hash;
+  NodeType type; ///< Node type indicator
+  Rectangle rect; ///< Bounding rectangle
+  hash_t hash; ///< The digest of the node
 public:
+  /**
+   *  Default class constructor.
+   *  @param t the node type
+   *  @param r the MBR of the node
+   *  @param h the hash value of the node
+   */
   Node(NodeType t, Rectangle r, hash_t h) : type(t), rect(r), hash(h) {}
+
+  /**
+   *  Default destructor.
+   */
   virtual ~Node() {}
+
+  /**
+   *  Returns the type of the node.
+   *  @return the node type
+   */
   NodeType getType() {return type;}
+
+  /**
+   *  Returns the MBR of the node.
+   *  @return the bounding rectangle of the node
+   */
   Rectangle getRect() {return rect;}
+
+  /**
+   *  Returns the digest of the node.
+   *  @return the node digest
+   */
   hash_t getHash() {return hash;}
 };
 
 /**
- *
+ *  This class represents a leaf node.
  */
 class LeafNode : public Node {
 private:
-  std::vector<Record> data;
+  std::vector<Record> data; ///< A leaf node stores a list of records.
 public:
+  /**
+   *  Default class constructor.
+   *  @param r the node rectangle
+   *  @param h the hash value of the node
+   *  @param data a list of records to be stored
+   */
   LeafNode(Rectangle r, hash_t h, std::vector<Record> data)
   : Node(N_LEAF, r, h), data(data) {}
+
+  /**
+   *  Returns the list of records contained in the node.
+   *  @return the list of records
+   */
   std::vector<Record> getData() {return data;}
 };
 
 /**
- *
+ *  This class represents an internal node of the tree.
  */
 class IntNode : public Node {
 private:
-  std::vector<Node*> children;
+  std::vector<Node*> children; ///< A list of pointers to the children
 public:
+  /**
+   *  @param r the node rectangle
+   *  @param h the hash value of the node
+   *  @return 
+   */
   IntNode(Rectangle r, hash_t h, std::vector<Node*> children)
   : Node(N_INT, r, h), children(children) {}
   std::vector<Node*> getChildren() {return children;}

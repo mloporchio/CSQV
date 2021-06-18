@@ -5,9 +5,14 @@
 
 #include "Query.hpp"
 #include <deque>
+#include <list>
 #include <map>
+#include <set>
 #include <stack>
+#include <memory>
 #include <utility>
+#include <iostream>
+#include <cassert>
 
 /**
  *  This function can be used to query the MR-tree index in order
@@ -44,7 +49,12 @@ VObject *query(Node *r, const Rectangle &q) {
 }
 
 /**
- *
+ *  This function can be used to query the MR-tree index iteratively
+ *  in order to retrieve all points that belong to the query rectangle.
+ *  The function returns a verification object for the tree root.
+ *  @param r the root of the MR-tree
+ *  @param q the query rectangle
+ *  @return a VO for the root
  */
 VObject *query_it(Node *r, const Rectangle &q) {
   // Check if the input is legal.
@@ -85,8 +95,9 @@ VObject *query_it(Node *r, const Rectangle &q) {
 }
 
 /**
- *  This method can be used to reconstruct the root of the MR-tree index
- *  from a given verification object. The output of this method is a
+ *  This method can be used to recursively reconstruct
+ *  the root of the MR-tree index from a given verification object.
+ *  The output of this method is a
  *  <code>VResult</code> object that contains the reconstructed result set
  *  together with the bounding rectangle and digest of the root node.
  *  @param vo a verification object
@@ -105,7 +116,8 @@ VResult *verify(VObject *vo) {
     Buffer buf;
     for (Record &e : data) {
       rect = enlarge(rect, e.loc);
-      buf.put(e.loc.x).put(e.loc.y);
+      hash_t digest = hash_record(e);
+      buf.put_bytes(digest.data(), digest.size());
     }
     return new VResult(rect, sha256(buf), data);
   }
@@ -126,8 +138,9 @@ VResult *verify(VObject *vo) {
   for (size_t i = 0; i < cont->size(); i++) {
     VResult *partial = verify((VObject*) cont->get(i));
     // Take all the matching records and add them to the result set.
-    for (Record &e : partial->getData()) data.push_back(e);
-    // C
+    std::vector<Record> vdata = partial->getData();
+    data.insert(std::end(data), std::begin(vdata), std::end(vdata));
+    // Compute the hash and bounding rectangle.
     Rectangle r = partial->getRect();
     hash_t h = partial->getHash();
     rect = enlarge(rect, r);
@@ -137,15 +150,21 @@ VResult *verify(VObject *vo) {
 }
 
 /**
- *
+ *  This method can be used to iteratively reconstruct
+ *  the root of the MR-tree index from a given verification object.
+ *  The output of this method is a <code>VResult</code> object
+ *  that contains the reconstructed result set
+ *  together with the bounding rectangle and digest of the root node.
+ *  @param vo a verification object
+ *  @return the reconstructed information
  */
 VResult *verify_it(VObject *vo) {
   // Check if the input is legal.
   if (!vo) return NULL;
   VResult *result = NULL;
-  std::stack<std::pair<VObject*,VObject*>> stack;
-  std::map<VObject*,bool> visited;
-  std::map<VObject*,std::vector<VResult*>> content;
+  std::stack<std::pair<VObject*, VObject*>> stack;
+  std::map<VObject*, bool> visited;
+  std::map<VObject*, std::vector<VResult*>> content;
   stack.push(std::make_pair(vo, (VObject*) NULL));
   visited[vo] = false;
   while (!stack.empty()) {
@@ -156,14 +175,12 @@ VResult *verify_it(VObject *vo) {
     // If it is a container...
     if (type == V_CONTAINER) {
       // Check if the corresponding node has already been visited.
-      // std::map<VObject*,bool>::iterator it = visited.find(curr);
-      // If the node has not been visited, we push its children
-      // on the stack for exploration.
-      if (!visited[curr]) {//it == visited.end()) {
+      // If this is not the case, we push its children on the stack
+      // (in reverse order) for exploration.
+      if (!visited[vo]) {
         VContainer *container = ((VContainer*) curr);
-        std::vector<VResult*> curr_content;
-        content[curr] = curr_content;
-        for (size_t i = (container->size())-1; i >= 0; i--) {
+        content[curr] = std::vector<VResult*>();
+        for (int i = ((int) container->size())-1; i >= 0; i--) {
           VObject *child = container->get(i);
           stack.push(std::make_pair(child, curr));
           visited[child] = false;
@@ -173,11 +190,11 @@ VResult *verify_it(VObject *vo) {
       // On the other hand, if the node has already been visited
       // we have to reconstruct.
       else {
-        std::vector<VResult*> curr_content = content[curr];
+        //std::vector<VResult*> curr_content = curr->getContent();//content[curr];
         std::vector<Record> data;
         Rectangle rect = empty();
         Buffer buf;
-        for (VResult *vr : curr_content) {
+        for (VResult *vr : content[curr]) {
           // Collect all records.
           std::vector<Record> vdata = vr->getData();
           data.insert(std::end(data), std::begin(vdata), std::end(vdata));
@@ -201,11 +218,12 @@ VResult *verify_it(VObject *vo) {
       // the records it contains.
       if (type == V_LEAF) {
         std::vector<Record> data = ((VLeaf*) curr)->getData();
-        Rectangle rect;
+        Rectangle rect = empty();
         Buffer buf;
         for (Record &e : data) {
           rect = enlarge(rect, e.loc);
-          buf.put(e.loc.x).put(e.loc.y);
+          hash_t digest = hash_record(e);
+          buf.put_bytes(digest.data(), digest.size());
         }
         partial = new VResult(rect, sha256(buf), data);
       }

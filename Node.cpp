@@ -18,9 +18,9 @@ LeafNode *make_leaf(std::vector<Record> &data) {
   Rectangle rect = empty();
   Buffer buf;
   for (Record &e : data) {
-    Point p = e.loc;
-    rect = enlarge(rect, p);
-    buf.put(p.x).put(p.y);
+    rect = enlarge(rect, e.loc);
+    hash_t digest = hash_record(e);
+    buf.put_bytes(digest.data(), digest.size());
   }
   return new LeafNode(rect, sha256(buf), data);
 }
@@ -56,7 +56,7 @@ IntNode *make_internal(std::vector<Node*> &children) {
 Node *packed(std::vector<Record> &data, size_t c) {
   std::vector<Node*> current;
   // Sort the points in ascending order.
-  std::sort(data.begin(), data.end(), RecordCmp());
+  std::sort(data.begin(), data.end());
   // Split the records into chunks of size c.
   // Then create a leaf node for each chunk.
   std::vector<std::vector<Record>> leaves = split(data, c);

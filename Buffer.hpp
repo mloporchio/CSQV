@@ -9,7 +9,7 @@
 #include <vector>
 
 /**
- *
+ *  This class implements a buffer containing raw bytes.
  */
 class Buffer {
 private:
@@ -21,22 +21,30 @@ public:
   Buffer();
 
   /**
-   *
+   *  Returns a pointer to the underlying array.
+   *  @return a pointer to the underlying array
    */
   const uint8_t *data() const;
 
   /**
-   *
+   *  Returns the current size of the buffer.
+   *  @return the buffer size
    */
   size_t size() const;
 
   /**
-   *
+   *  Inserts a sequence of bytes into the buffer.
+   *  @param data pointer to the sequence of bytes
+   *  @param length number of bytes in the sequence
+   *  @return a reference to the updated buffer
    */
   Buffer &put_bytes(uint8_t *data, size_t length);
 
   /**
-   *
+   *  Inserts a generic element into the buffer.
+   *  The element is interpreted as a sequence of raw bytes.
+   *  @param x the element
+   *  @return a reference to the updated buffer
    */
   template<typename T>
   Buffer &put(T &x) {

@@ -10,26 +10,25 @@
 #include "Hash.hpp"
 
 /**
- *
+ *  A record represents a car crash event.
  */
 struct Record {
-  std::string report_id;
-  uint32_t year;
-  std::string month;
-  std::string day;
-  std::string time;
-  Point loc;
+  std::string report_id; ///< The identifier of the police report
+  uint32_t year; ///< Year of the event
+  std::string month; ///< Month of the event
+  std::string day; ///< Day of the event
+  std::string time; ///< Time of the event
+  Point loc; ///< The geographical location of the event
+
+  /**
+   *  "Strictly-less-than" operator to compare records.
+   *  @param e a record to be compared with the current one
+   *  @return true if and only if the current record is strictly less
+   *  than the input one
+   */
+  bool operator<(const Record &e) const;
 };
 
-/**
- *  Comparator for sorting a list of records.
- *  Elements are sorted according to their location.
- */
-struct RecordCmp {
-  bool operator()(const Record &a, const Record &b) {
-    return a.loc < b.loc;
-  }
-};
 
 /**
  *  Parses a CSV file and creates a list of records.

@@ -93,8 +93,8 @@ public:
 VObject *query(Node *r, const Rectangle &q);
 
 /**
- *  This function can be used to query the MR-tree index in order
- *  to retrieve all points that belong to the query rectangle.
+ *  This function can be used to query the MR-tree index iteratively
+ *  in order to retrieve all points that belong to the query rectangle.
  *  The function returns a verification object for the tree root.
  *  @param r the root of the MR-tree
  *  @param q the query rectangle
@@ -103,12 +103,24 @@ VObject *query(Node *r, const Rectangle &q);
 VObject *query_it(Node *r, const Rectangle &q);
 
 /**
- *
+ *  This method can be used to recursively reconstruct
+ *  the root of the MR-tree index from a given verification object.
+ *  The output of this method is a
+ *  <code>VResult</code> object that contains the reconstructed result set
+ *  together with the bounding rectangle and digest of the root node.
+ *  @param vo a verification object
+ *  @return the reconstructed information
  */
 VResult *verify(VObject *vo);
 
 /**
- *
+ *  This method can be used to iteratively reconstruct
+ *  the root of the MR-tree index from a given verification object.
+ *  The output of this method is a <code>VResult</code> object
+ *  that contains the reconstructed result set
+ *  together with the bounding rectangle and digest of the root node.
+ *  @param vo a verification object
+ *  @return the reconstructed information
  */
 VResult *verify_it(VObject *vo);
 

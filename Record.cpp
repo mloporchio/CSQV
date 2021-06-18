@@ -6,6 +6,17 @@
 #include "csv.hpp"
 #include "Record.hpp"
 
+
+/**
+ *  "Strictly-less-than" operator to compare records.
+ *  @param e a record to be compared with the current one
+ *  @return true if and only if the current record is strictly less
+ *  than the input one
+ */
+bool Record::operator<(const Record &e) const {
+  return (loc < e.loc);
+}
+
 /**
  *  Parses a CSV file and creates a list of records.
  *  @param path full path of the input file
