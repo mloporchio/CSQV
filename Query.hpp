@@ -109,9 +109,10 @@ VObject *query_it(Node *r, const Rectangle &q);
  *  <code>VResult</code> object that contains the reconstructed result set
  *  together with the bounding rectangle and digest of the root node.
  *  @param vo a verification object
+ *  @param q the query rectangle
  *  @return the reconstructed information
  */
-VResult *verify(VObject *vo);
+VResult *verify(VObject *vo, const Rectangle &q);
 
 /**
  *  This method can be used to iteratively reconstruct
@@ -120,8 +121,9 @@ VResult *verify(VObject *vo);
  *  that contains the reconstructed result set
  *  together with the bounding rectangle and digest of the root node.
  *  @param vo a verification object
+ *  @param q the query rectangle
  *  @return the reconstructed information
  */
-VResult *verify_it(VObject *vo);
+VResult *verify_it(VObject *vo, const Rectangle &q);
 
 #endif

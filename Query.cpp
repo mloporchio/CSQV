@@ -96,9 +96,10 @@ VObject *query_it(Node *r, const Rectangle &q) {
  *  <code>VResult</code> object that contains the reconstructed result set
  *  together with the bounding rectangle and digest of the root node.
  *  @param vo a verification object
+ *  @param q the query rectangle
  *  @return the reconstructed information
  */
-VResult *verify(VObject *vo) {
+VResult *verify(VObject *vo, const Rectangle &q) {
   // Check if the input is legal.
   if (!vo) return NULL;
   // Check the type of the VO.
@@ -106,13 +107,13 @@ VResult *verify(VObject *vo) {
   // If the VO corresponds to a leaf, we reconstruct the node
   // by computing its MBR and hash from the set of record it contains.
   if (type == V_LEAF) {
-    std::vector<Record> data = ((VLeaf *) vo)->getData();
+    std::vector<Record> data, v_data = ((VLeaf *) vo)->getData();
     Rectangle rect = empty();
     Buffer buf;
-    for (Record &e : data) {
+    for (Record &e : v_data) {
       rect = enlarge(rect, e.loc);
-      hash_t digest = hash_record(e);
-      buf.put_bytes(digest.data(), digest.size());
+      put_record(buf, e);
+      if (match(e, q)) data.push_back(e);
     }
     return new VResult(rect, sha256(buf), data);
   }
@@ -120,8 +121,7 @@ VResult *verify(VObject *vo) {
   // using the provided MBR and digest.
   if (type == V_PRUNED) {
     VPruned *pr = (VPruned *) vo;
-    std::vector<Record> data;
-    return new VResult(pr->getRect(), pr->getHash(), data);
+    return new VResult(pr->getRect(), pr->getHash(), std::vector<Record>());
   }
   // Otherwise we must reconstruct a non-pruned internal node.
   // This node is represented by a VO container.
@@ -131,10 +131,10 @@ VResult *verify(VObject *vo) {
   Buffer buf;
   // Recursively examine each VO in the container.
   for (size_t i = 0; i < cont->size(); i++) {
-    VResult *partial = verify((VObject*) cont->get(i));
+    VResult *partial = verify((VObject*) cont->get(i), q);
     // Take all the matching records and add them to the result set.
-    std::vector<Record> vdata = partial->getData();
-    data.insert(std::end(data), std::begin(vdata), std::end(vdata));
+    std::vector<Record> v_data = partial->getData();
+    data.insert(std::end(data), std::begin(v_data), std::end(v_data));
     // Compute the hash and bounding rectangle.
     Rectangle r = partial->getRect();
     hash_t h = partial->getHash();
@@ -151,9 +151,10 @@ VResult *verify(VObject *vo) {
  *  that contains the reconstructed result set
  *  together with the bounding rectangle and digest of the root node.
  *  @param vo a verification object
+ *  @param q the query rectangle
  *  @return the reconstructed information
  */
-VResult *verify_it(VObject *vo) {
+VResult *verify_it(VObject *vo, const Rectangle &q) {
   // Check if the input is legal.
   if (!vo) return NULL;
   VResult *result = NULL;
@@ -212,13 +213,13 @@ VResult *verify_it(VObject *vo) {
       // If the node is a leaf, reconstruct its MBR and hash from
       // the records it contains.
       if (type == V_LEAF) {
-        std::vector<Record> data = ((VLeaf*) curr)->getData();
+        std::vector<Record> data, v_data = ((VLeaf*) curr)->getData();
         Rectangle rect = empty();
         Buffer buf;
-        for (Record &e : data) {
+        for (Record &e : v_data) {
           rect = enlarge(rect, e.loc);
-          hash_t digest = hash_record(e);
-          buf.put_bytes(digest.data(), digest.size());
+          put_record(buf, e);
+          if (match(e, q)) data.push_back(e);
         }
         partial = new VResult(rect, sha256(buf), data);
       }
@@ -226,8 +227,8 @@ VResult *verify_it(VObject *vo) {
       // its MBR and hash.
       else {
         VPruned *pr = (VPruned*) curr;
-        std::vector<Record> data;
-        partial = new VResult(pr->getRect(), pr->getHash(), data);
+        partial = new VResult(pr->getRect(), pr->getHash(),
+        std::vector<Record>());
       }
       if (parent) content[parent].push_back(partial);
       else result = partial;

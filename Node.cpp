@@ -19,8 +19,7 @@ LeafNode *make_leaf(std::vector<Record> &data) {
   Buffer buf;
   for (Record &e : data) {
     rect = enlarge(rect, e.loc);
-    hash_t digest = hash_record(e);
-    buf.put_bytes(digest.data(), digest.size());
+    put_record(buf, e);
   }
   return new LeafNode(rect, sha256(buf), data);
 }

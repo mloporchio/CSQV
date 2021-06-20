@@ -37,7 +37,7 @@ int main(int argc, char const *argv[]) {
   auto q_duration = duration_cast<microseconds>(q_stop - q_start);
   // Time the execution of the verification algorithm.
   auto v_start = high_resolution_clock::now();
-  VResult *vr = verify_it(vo);
+  VResult *vr = verify_it(vo, query_rect);
   auto v_stop = high_resolution_clock::now();
   auto v_duration = duration_cast<microseconds>(v_stop - v_start);
   // Print information.

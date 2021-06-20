@@ -29,6 +29,16 @@ struct Record {
   bool operator<(const Record &e) const;
 };
 
+/**
+ *  Checks if a given record matches a query.
+ *  @param e the record
+ *  @param q the query rectangle
+ *  @return true if and only if the record satisfies the query
+ */
+static inline bool match(const Record &e, const Rectangle &q) {
+  return (q.lx <= e.loc.x && e.loc.x <= q.ux &&
+          q.ly <= e.loc.y && e.loc.y <= q.ux);
+}
 
 /**
  *  Parses a CSV file and creates a list of records.
@@ -36,6 +46,14 @@ struct Record {
  *  @return a list of records parsed from the input file
  */
 std::vector<Record> load_file(const std::string &path);
+
+
+/**
+ *  Inserts all the fields of a record into a given buffer.
+ *  @param buf the buffer
+ *  @param r the record
+ */
+void put_record(Buffer &buf, Record &r);
 
 /**
  *  This function computes a SHA-256 digest of a record
