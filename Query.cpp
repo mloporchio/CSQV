@@ -8,6 +8,30 @@
 #include <map>
 #include <stack>
 #include <utility>
+#include <iostream>
+
+/**
+ *  Counts the number of records inside the verification object.
+ *  @param vo a verification object
+ *  @return the number of records inside the object
+ */
+size_t count_records(VObject *vo) {
+  // Check if the input is legal.
+  if (!vo) return 0;
+  // Check the type of the VO.
+  VObjectType type = vo->getType();
+  // If the VO corresponds to a leaf, we return the number of its elements.
+  if (type == V_LEAF) return (((VLeaf *) vo)->getData()).size();
+  // If the VO corresponds to a pruned internal node, the result is zero.
+  if (type == V_PRUNED) return 0;
+  // Otherwise the VO has been generated for a non-pruned internal node.
+  // We recursively examine each VO in the container.
+  VContainer *cont = (VContainer *) vo;
+  size_t count = 0;
+  for (size_t i = 0; i < cont->size(); i++)
+    count += count_records((VObject*) cont->get(i));
+  return count;
+}
 
 /**
  *  This function can be used to query the MR-tree index in order
@@ -173,7 +197,7 @@ VResult *verify_it(VObject *vo, const Rectangle &q) {
       // Check if the corresponding node has already been visited.
       // If this is not the case, we push its children on the stack
       // (in reverse order) for exploration.
-      if (!visited[vo]) {
+      if (!visited[curr]) {
         VContainer *container = ((VContainer*) curr);
         content[curr] = std::vector<VResult*>();
         for (int i = ((int) container->size())-1; i >= 0; i--) {
@@ -186,7 +210,6 @@ VResult *verify_it(VObject *vo, const Rectangle &q) {
       // On the other hand, if the node has already been visited
       // we have to reconstruct.
       else {
-        //std::vector<VResult*> curr_content = curr->getContent();//content[curr];
         std::vector<Record> data;
         Rectangle rect = empty();
         Buffer buf;

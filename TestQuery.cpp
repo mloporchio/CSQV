@@ -43,6 +43,8 @@ int main(int argc, char const *argv[]) {
   // Print information.
   std::cout << "Hash: " << toHex(root->getHash()) << std::endl
   << "Reconstructed hash: " << toHex(vr->getHash()) << std::endl
+  << "Returned records: " << count_records(vo) << std::endl
+  << "Matching records: " << vr->count() << std::endl
   << "Query time (us): " << q_duration.count() << std::endl
   << "Verification time (us): " << v_duration.count() << std::endl;
   // Before closing, free the memory occupied by the index.

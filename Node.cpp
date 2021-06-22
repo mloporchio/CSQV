@@ -6,8 +6,6 @@
 #include "Node.hpp"
 #include "Utils.hpp"
 #include <queue>
-#include <sstream>
-#include <iostream>
 
 /**
  *  Creates a new leaf node from a list of records.
@@ -74,7 +72,7 @@ Node *packed(std::vector<Record> &data, size_t c) {
       merged.push_back(n);
     }
     // These nodes become the new working set.
-    current = merged;
+    current = std::move(merged);
   }
   // Return the root of the MR-tree, i.e. the only node left.
   return current.at(0);
@@ -91,7 +89,7 @@ void delete_tree(Node *r) {
   // Create an empty queue and insert the root node.
   std::queue<Node*> q;
   q.push(r);
-  Node *curr = nullptr;
+  Node *curr = NULL;
   while (!q.empty()) {
     // Delete each node in the queue after pushing their children.
     curr = q.front();
@@ -106,5 +104,5 @@ void delete_tree(Node *r) {
     delete curr;
   }
   // Set the root as null before returning.
-  r = nullptr;
+  r = NULL;
 }

@@ -92,7 +92,7 @@ public:
   /**
    *  @param r the node rectangle
    *  @param h the hash value of the node
-   *  @return 
+   *  @return
    */
   IntNode(Rectangle r, hash_t h, std::vector<Node*> children)
   : Node(N_INT, r, h), children(children) {}

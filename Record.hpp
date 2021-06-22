@@ -37,7 +37,7 @@ struct Record {
  */
 static inline bool match(const Record &e, const Rectangle &q) {
   return (q.lx <= e.loc.x && e.loc.x <= q.ux &&
-          q.ly <= e.loc.y && e.loc.y <= q.ux);
+          q.ly <= e.loc.y && e.loc.y <= q.uy);
 }
 
 /**
@@ -53,7 +53,14 @@ std::vector<Record> load_file(const std::string &path);
  *  @param buf the buffer
  *  @param r the record
  */
-void put_record(Buffer &buf, Record &r);
+static inline void put_record(Buffer &buf, Record &r) {
+  buf.put_bytes((uint8_t*) r.report_id.c_str(), r.report_id.size())
+  .put(r.year)
+  .put_bytes((uint8_t*) r.month.c_str(), r.month.size())
+  .put_bytes((uint8_t*) r.day.c_str(), r.day.size())
+  .put_bytes((uint8_t*) r.time.c_str(), r.day.size())
+  .put(r.loc.x).put(r.loc.y);
+}
 
 /**
  *  This function computes a SHA-256 digest of a record

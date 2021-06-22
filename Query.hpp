@@ -80,7 +80,15 @@ public:
   Rectangle getRect() {return rect;}
   hash_t getHash() {return hash;}
   std::vector<Record> getData() {return data;}
+  size_t count() {return data.size();}
 };
+
+/**
+ *  Counts the number of records inside the verification object.
+ *  @param vo a verification object
+ *  @return the number of records inside the object
+ */
+size_t count_records(VObject *vo);
 
 /**
  *  This function can be used to query the MR-tree index recursively

@@ -43,20 +43,6 @@ std::vector<Record> load_file(const std::string &path) {
 }
 
 /**
- *  Inserts all the fields of a record into a given buffer.
- *  @param buf the buffer
- *  @param r the record
- */
-void put_record(Buffer &buf, Record &r) {
-  buf.put_bytes((uint8_t*) r.report_id.c_str(), r.report_id.size())
-  .put(r.year)
-  .put_bytes((uint8_t*) r.month.c_str(), r.month.size())
-  .put_bytes((uint8_t*) r.day.c_str(), r.day.size())
-  .put_bytes((uint8_t*) r.time.c_str(), r.day.size())
-  .put(r.loc.x).put(r.loc.y);
-}
-
-/**
  *  This function computes a SHA-256 digest of a record
  *  by concatenating all raw bytes of its fields.
  *  @param r input record
