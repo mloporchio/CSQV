@@ -38,11 +38,13 @@ int main(int argc, char **argv) {
   }
   // Print information.
   Rectangle r = root -> getRect();
-  std::cout << "N. of records: " << records.size() << std::endl;
-  std::cout << "MBR: (" <<
-  r.lx << ", " << r.ly << ", " << r.ux << ", " << r.uy << ")" << std::endl;
-  std::cout << "Hash: " << toHex(root -> getHash()) << std::endl;
-  std::cout << "Construction time (us): " << duration.count() << std::endl;
+  std::cout << "N. of records: " << records.size() << std::endl
+  << "MBR: (" << r.lx << ", " << r.ly << ", " << r.ux << ", " << r.uy << ")"
+  << std::endl
+  << "Hash: " << toHex(root -> getHash()) << std::endl
+  << "Leaves: " << count_leaves(root) << std::endl
+  << "Height: " << height(root) << std::endl
+  << "Construction time (us): " << duration.count() << std::endl;
   // Before closing, free the memory occupied by the index.
   delete_tree(root);
   return 0;

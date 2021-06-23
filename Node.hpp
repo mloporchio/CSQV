@@ -130,4 +130,19 @@ Node *packed(std::vector<Record> &data, size_t c);
  */
 void delete_tree(Node *r);
 
+/**
+ *  Counts the number of leaf nodes in the tree.
+ *  @param r pointer to the tree root
+ *  @return the number of leaves
+ */
+size_t count_leaves(Node *r);
+
+
+/**
+ *  Computes the height of the tree.
+ *  @param r pointer to the tree root
+ *  @param the height of the tree
+ */
+size_t height(Node *r);
+
 #endif

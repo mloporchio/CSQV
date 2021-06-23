@@ -15,7 +15,10 @@ TestQuery: Buffer.o Geometry.o Hash.o Node.o Query.o Record.o Utils.o \
 	TestQuery.o
 	$(CXX) $(LD_FLAGS) $^ -o TestQuery
 
-all: TestIndex TestQuery
+TestSize: Buffer.o Geometry.o Hash.o Record.o Utils.o TestSize.o
+	$(CXX) $(LD_FLAGS) $^ -o TestSize
+
+all: TestIndex TestQuery TestSize
 
 cleanall:
-	-rm -f *.o TestIndex TestQuery
+	-rm -f *.o TestIndex TestQuery TestSize

@@ -5,6 +5,8 @@
 
 #include "Node.hpp"
 #include "Utils.hpp"
+#include <algorithm>
+#include <limits>
 #include <queue>
 
 /**
@@ -105,4 +107,48 @@ void delete_tree(Node *r) {
   }
   // Set the root as null before returning.
   r = NULL;
+}
+
+/**
+ *  Counts the number of leaf nodes in the tree.
+ *  @param r pointer to the tree root
+ *  @return the number of leaves
+ */
+size_t count_leaves(Node *r) {
+  // Check if the input is legal.
+  if (!r) return 0;
+  size_t count = 0;
+  // Create an empty queue and insert the root node.
+  std::queue<Node*> q;
+  q.push(r);
+  Node *curr = NULL;
+  while (!q.empty()) {
+    curr = q.front();
+    q.pop();
+    // If we have reached a leaf, increase the counter.
+    if (curr->getType() == N_LEAF) count++;
+    // Otherwise, enqueue the children of the internal node.
+    else {
+      std::vector<Node*> children = ((IntNode*) curr)->getChildren();
+      for (Node *child : children) q.push(child);
+    }
+  }
+  return count;
+}
+
+
+/**
+ *  Computes the height of the tree.
+ *  @param r pointer to the tree root
+ *  @param the height of the tree
+ */
+size_t height(Node *r) {
+  // Check if the input is legal.
+  if (!r) return 0;
+  if (r->getType() == N_LEAF) return 0;
+  // If the node is internal, call the function recursively.
+  size_t hmax = -std::numeric_limits<size_t>::infinity();
+  std::vector<Node*> children = ((IntNode*) r)->getChildren();
+  for (Node *child : children) hmax = std::max(hmax, height(child));
+  return 1 + hmax;
 }

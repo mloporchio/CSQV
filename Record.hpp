@@ -30,6 +30,16 @@ struct Record {
 };
 
 /**
+ *  Returns (an approximation of) the memory occupied by a record (in bytes).
+ *  @param e a record
+ *  @return an approximation of the record size
+ */
+static inline size_t size(const Record &e) {
+  return (e.report_id.size() + e.month.size() + e.day.size()
+  + e.time.size() + sizeof(uint32_t) + 2*sizeof(double));
+}
+
+/**
  *  Checks if a given record matches a query.
  *  @param e the record
  *  @param q the query rectangle
