@@ -31,21 +31,11 @@ int main(int argc, char **argv) {
   Node *root = packed(records, capacity);
   auto stop = high_resolution_clock::now();
   auto duration = duration_cast<microseconds>(stop - start);
-  if (!root) {
-    std::cerr << "Error: something went wrong while building the index."
-    << std::endl;
-    return 1;
-  }
-  // Print information.
-  Rectangle r = root -> getRect();
-  std::cout << "N. of records: " << records.size() << std::endl
-  << "MBR: (" << r.lx << ", " << r.ly << ", " << r.ux << ", " << r.uy << ")"
-  << std::endl
-  << "Hash: " << toHex(root -> getHash()) << std::endl
+  // Print the results.
+  std::cout << "Construction time (us): " << duration.count() << std::endl
   << "Leaves: " << count_leaves(root) << std::endl
-  << "Height: " << height(root) << std::endl
-  << "Construction time (us): " << duration.count() << std::endl;
-  // Before closing, free the memory occupied by the index.
+  << "Height: " << height(root) << std::endl;
+  // Free the memory occupied by the index.
   delete_tree(root);
   return 0;
 }

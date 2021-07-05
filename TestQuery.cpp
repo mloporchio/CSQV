@@ -5,48 +5,74 @@
  *  This program can be used to test the MR-tree query and verification
  *  algorithms. To execute it, the following parameters are required:
  *
- *    <filename> <capacity> <xmin> <ymin> <xmax> <ymax>
+ *    <data_file> <query_file> <capacity>
  */
 
+#include "csv.hpp"
 #include "Query.hpp"
 #include <cstdlib>
 #include <iostream>
 
 using namespace std::chrono;
 
+/**
+ *  
+ */
+std::vector<Rectangle> load_query_file(const std::string &path) {
+  csv::CSVReader reader(path);
+  std::vector<Rectangle> result;
+  for (csv::CSVRow &row : reader) {
+    // Read the coordinates
+    double lx = row["lx"].get<double>(), ly = row["ly"].get<double>(),
+    ux = row["ux"].get<double>(), uy = row["uy"].get<double>();
+    // Create the rectangle.
+    result.push_back({lx, ly, ux, uy});
+  }
+  return result;
+}
+
 int main(int argc, char const *argv[]) {
   // Check the number of input arguments.
-  if (argc < 7) {
+  if (argc < 4) {
     std::cerr << "Usage: " << argv[0]
-    << " <filename> <capacity> <xmin> <ymin> <xmax> <ymax>" << std::endl;
+    << " <data_file> <query_file> <capacity>" << std::endl;
     return 1;
   }
   // Read the parameters.
-  std::string filename = argv[1];
-  size_t capacity = atol(argv[2]);
-  double xmin = atof(argv[3]), ymin = atof(argv[4]),
-  xmax = atof(argv[5]), ymax = atof(argv[6]);
-  Rectangle query_rect = {xmin, ymin, xmax, ymax};
+  std::string data_file = argv[1], query_file = argv[2];
+  size_t capacity = atol(argv[3]);
   // Open the input file and construct the MR-tree index.
-  std::vector<Record> records = load_file(filename);
+  std::vector<Record> records = load_file(data_file);
   Node *root = packed(records, capacity);
-  // Time the execution of the query algorithm.
-  auto q_start = high_resolution_clock::now();
-  VObject *vo = query_it(root, query_rect);
-  auto q_stop = high_resolution_clock::now();
-  auto q_duration = duration_cast<microseconds>(q_stop - q_start);
-  // Time the execution of the verification algorithm.
-  auto v_start = high_resolution_clock::now();
-  VResult *vr = verify_it(vo, query_rect);
-  auto v_stop = high_resolution_clock::now();
-  auto v_duration = duration_cast<microseconds>(v_stop - v_start);
+  // Read the query file.
+  std::vector<Rectangle> queries = load_query_file(query_file);
+  // Execute the queries.
+  VObject *vo = NULL;
+  VResult *vr = NULL;
+  long long q_time = 0, v_time = 0;
+  size_t returned = 0, matching = 0;
+  for (size_t i = 0; i < queries.size(); i++) {
+    // Time the execution of the query algorithm.
+    auto q_start = high_resolution_clock::now();
+    vo = query_it(root, queries[i]);
+    auto q_stop = high_resolution_clock::now();
+    // Time the execution of the verification algorithm.
+    auto v_start = high_resolution_clock::now();
+    vr = verify_it(vo, queries[i]);
+    auto v_stop = high_resolution_clock::now();
+    // Update the values for statistics.
+    returned += count_records(vo);
+    matching += vr->count();
+    q_time += (duration_cast<microseconds>(q_stop - q_start)).count();
+    v_time += (duration_cast<microseconds>(v_stop - v_start)).count();
+  }
   // Print information.
-  std::cout << "Hash: " << toHex(root->getHash()) << std::endl
-  << "Reconstructed hash: " << toHex(vr->getHash()) << std::endl
-  << "Returned records: " << count_records(vo) << std::endl
-  << "Matching records: " << vr->count() << std::endl
-  << "Query time (us): " << q_duration.count() << std::endl
-  << "Verification time (us): " << v_duration.count() << std::endl;
+  std::cout
+  << "N. of queries: " << queries.size() << std::endl
+  << "Avg. returned: " << returned/queries.size() << std::endl
+  << "Avg. mathcing: " << matching/queries.size() << std::endl
+  << "Query time (us): " << q_time/queries.size() << std::endl
+  << "Verification time (us): " << v_time/queries.size() << std::endl;
   // Before closing, free the memory occupied by the index.
   delete_tree(root);
   return 0;

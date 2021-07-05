@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <limits>
 #include <queue>
+#include <cmath>
 
 /**
  *  Creates a new leaf node from a list of records.
@@ -34,13 +35,11 @@ IntNode *make_internal(std::vector<Node*> &children) {
   Rectangle rect = empty();
   Buffer buf;
   for (Node *child : children) {
-    if (child) {
-      Rectangle r = child -> getRect();
-      hash_t h = child -> getHash();
-      rect = enlarge(rect, r);
-      buf.put(r.lx).put(r.ly).put(r.ux).put(r.uy)
-      .put_bytes(h.data(), h.size());
-    }
+    if (!child) continue;
+    Rectangle r = child -> getRect();
+    hash_t h = child -> getHash();
+    rect = enlarge(rect, r);
+    buf.put(r.lx).put(r.ly).put(r.ux).put(r.uy).put_bytes(h.data(), h.size());
   }
   return new IntNode(rect, sha256(buf), children);
 }
@@ -53,31 +52,39 @@ IntNode *make_internal(std::vector<Node*> &children) {
  *  @return a pointer to the root node of the tree
  */
 Node *packed(std::vector<Record> &data, size_t c) {
-  std::vector<Node*> current;
+  size_t l = 0, r = 0;
+  // Pre-compute the number of leaves and initialize the vector.
+  std::vector<Node*> curr;
+  curr.reserve((data.size() / c) + ((data.size() % c) != 0));
   // Sort the points in ascending order.
   std::sort(data.begin(), data.end());
-  // Split the records into chunks of size c.
-  // Then create a leaf node for each chunk.
-  std::vector<std::vector<Record>> leaves = split(data, c);
-  for (size_t i = 0; i < leaves.size(); i++) {
-    Node *l = make_leaf(leaves[i]);
-    current.push_back(l);
+  // Split the records into chunks of size c
+  // and then create a leaf node for each chunk.
+  for (l = 0; l < data.size(); l += c) {
+    r = std::min(data.size(), l+c);
+    std::vector<Record> temp;
+    temp.reserve(r-l);
+    std::copy(data.begin()+l, data.begin()+r, std::back_inserter(temp));
+    curr.push_back(make_leaf(temp));
   }
   // Start merging.
-  while (current.size() > 1) {
+  while (curr.size() > 1) {
     // Divide the list of current nodes into chunks.
-    std::vector<std::vector<Node*>> chunks = split(current, c);
-    // For each chunk, merge all its nodes and create a new one.
+    // Then, for each chunk, merge all its nodes and create a new one.
     std::vector<Node*> merged;
-    for (size_t i = 0; i < chunks.size(); i++) {
-      Node *n = make_internal(chunks[i]);
-      merged.push_back(n);
+    merged.reserve((curr.size() / c) + ((curr.size() % c) != 0));
+    for (l = 0; l < curr.size(); l += c) {
+      r = std::min(curr.size(), l+c);
+      std::vector<Node*> temp;
+      temp.reserve(r-l);
+      std::copy(curr.begin()+l, curr.begin()+r, std::back_inserter(temp));
+      merged.push_back(make_internal(temp));
     }
     // These nodes become the new working set.
-    current = std::move(merged);
+    curr = std::move(merged);
   }
   // Return the root of the MR-tree, i.e. the only node left.
-  return current.at(0);
+  return curr.at(0);
 }
 
 /**
@@ -135,7 +142,6 @@ size_t count_leaves(Node *r) {
   }
   return count;
 }
-
 
 /**
  *  Computes the height of the tree.

@@ -67,13 +67,13 @@ private:
   std::vector<Record> data; ///< A leaf node stores a list of records.
 public:
   /**
-   *  Default class constructor.
+   *  Constructs a new leaf node.
    *  @param r the node rectangle
    *  @param h the hash value of the node
    *  @param data a list of records to be stored
    */
-  LeafNode(Rectangle r, hash_t h, std::vector<Record> data)
-  : Node(N_LEAF, r, h), data(data) {}
+  LeafNode(Rectangle r, hash_t h, std::vector<Record> &data)
+  : Node(N_LEAF, r, h), data(std::move(data)) {}
 
   /**
    *  Returns the list of records contained in the node.
@@ -90,12 +90,13 @@ private:
   std::vector<Node*> children; ///< A list of pointers to the children
 public:
   /**
+   *  Constructs a new internal node.
    *  @param r the node rectangle
    *  @param h the hash value of the node
    *  @return
    */
-  IntNode(Rectangle r, hash_t h, std::vector<Node*> children)
-  : Node(N_INT, r, h), children(children) {}
+  IntNode(Rectangle r, hash_t h, std::vector<Node*> &children)
+  : Node(N_INT, r, h), children(std::move(children)) {}
   std::vector<Node*> getChildren() {return children;}
 };
 
@@ -116,7 +117,7 @@ IntNode *make_internal(std::vector<Node*> &children);
 
 /**
  *  Builds a MR-tree from a list of records using a bulk-loading
- *  (a.k.a packed) algorithm.
+ *  (a.k.a. packed) algorithm.
  *  @param data list of records
  *  @param c page capacity
  *  @return a pointer to the root node of the tree

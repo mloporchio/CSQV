@@ -51,6 +51,19 @@ static inline bool match(const Record &e, const Rectangle &q) {
 }
 
 /**
+ *  Given a list, counts the number of records that match a query.
+ *  @param data list of records
+ *  @param q the query rectangle
+ *  @return the number of matching records
+ */
+static inline size_t count(const std::vector<Record> &data,
+  const Rectangle &q) {
+  size_t count = 0;
+  for (const Record &e : data) if (match(e, q)) count++;
+  return count;
+}
+
+/**
  *  Parses a CSV file and creates a list of records.
  *  @param path full path of the input file
  *  @return a list of records parsed from the input file

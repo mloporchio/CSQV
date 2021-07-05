@@ -18,7 +18,10 @@ TestQuery: Buffer.o Geometry.o Hash.o Node.o Query.o Record.o Utils.o \
 TestSize: Buffer.o Geometry.o Hash.o Record.o Utils.o TestSize.o
 	$(CXX) $(LD_FLAGS) $^ -o TestSize
 
-all: TestIndex TestQuery TestSize
+QueryGenerator: Buffer.o Geometry.o Hash.o Record.o Utils.o QueryGenerator.o
+	$(CXX) $(LD_FLAGS) $^ -o QueryGenerator
+
+all: TestIndex TestQuery TestSize QueryGenerator
 
 cleanall:
-	-rm -f *.o TestIndex TestQuery TestSize
+	-rm -f *.o TestIndex TestQuery TestSize QueryGenerator
