@@ -70,7 +70,6 @@ static inline size_t count(const std::vector<Record> &data,
  */
 std::vector<Record> load_file(const std::string &path);
 
-
 /**
  *  Inserts all the fields of a record into a given buffer.
  *  @param buf the buffer

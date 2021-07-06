@@ -8,7 +8,6 @@
 #include <algorithm>
 #include <limits>
 #include <queue>
-#include <cmath>
 
 /**
  *  Creates a new leaf node from a list of records.

@@ -32,7 +32,8 @@ int main(int argc, char **argv) {
   auto stop = high_resolution_clock::now();
   auto duration = duration_cast<microseconds>(stop - start);
   // Print the results.
-  std::cout << "Construction time (us): " << duration.count() << std::endl
+  std::cout
+  << "Construction time (us): " << duration.count() << std::endl
   << "Leaves: " << count_leaves(root) << std::endl
   << "Height: " << height(root) << std::endl;
   // Free the memory occupied by the index.

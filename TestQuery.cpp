@@ -16,7 +16,9 @@
 using namespace std::chrono;
 
 /**
- *  
+ *  Reads a list of query rectangles from a given file.
+ *  @param path the full path of the input file
+ *  @return a list of rectangles
  */
 std::vector<Rectangle> load_query_file(const std::string &path) {
   csv::CSVReader reader(path);
