@@ -31,7 +31,7 @@ int main(int argc, char const *argv[]) {
   for (size_t i = 0; i < n_queries; i++) {
     // Generate a random query rectangle.
     int32_t lx = lxd(eng), ly = lyd(eng), ux, uy;
-    std::uniform_int_distribution<double> uxd(lx, r.ux), uyd(ly, r.uy);
+    std::uniform_int_distribution<int32_t> uxd(lx, r.ux), uyd(ly, r.uy);
     ux = uxd(eng); uy = uyd(eng);
     Rectangle rq = {lx, ly, ux, uy};
     // Compute the number of matching records and the fraction.
