@@ -6,6 +6,7 @@
 #ifndef RECORD_H
 #define RECORD_H
 
+#include "Config.hpp"
 #include "Geometry.hpp"
 #include "Hash.hpp"
 
@@ -19,25 +20,22 @@ struct Record {
   std::string day; ///< Day of the event
   std::string time; ///< Time of the event
   Point loc; ///< The geographical location of the event
-
+  #ifdef Z_INDEX
+  uint_fast64_t z_index; ///< Morton index of the location
+  #endif
   /**
    *  "Strictly-less-than" operator to compare records.
-   *  @param e a record to be compared with the current one
-   *  @return true if and only if the current record is strictly less
-   *  than the input one
+   *  @param e the other record
+   *  @return true if and only if the current record precedes e
    */
-  bool operator<(const Record &e) const;
+  bool operator<(const Record &e) const {
+    #ifdef Z_INDEX
+    return z_index < e.z_index;
+    #else
+    return loc < e.loc;
+    #endif
+  }
 };
-
-/**
- *  Returns (an approximation of) the memory occupied by a record (in bytes).
- *  @param e a record
- *  @return an approximation of the record size
- */
-static inline size_t size(const Record &e) {
-  return (e.report_id.size() + e.month.size() + e.day.size()
-  + e.time.size() + sizeof(uint32_t) + 2*sizeof(double));
-}
 
 /**
  *  Checks if a given record matches a query.
@@ -83,13 +81,5 @@ static inline void put_record(Buffer &buf, Record &r) {
   .put_bytes((uint8_t*) r.time.c_str(), r.day.size())
   .put(r.loc.x).put(r.loc.y);
 }
-
-/**
- *  This function computes a SHA-256 digest of a record
- *  by concatenating all raw bytes of its fields.
- *  @param r input record
- *  @return a digest of the record
- */
-hash_t hash_record(Record &r);
 
 #endif

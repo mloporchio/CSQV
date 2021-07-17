@@ -4,26 +4,8 @@
  */
 
 #include "Geometry.hpp"
-#include "Utils.hpp"
 #include <cmath>
 #include <limits>
-
-/**
- *  "Strictly-less-than" comparison operator that can be used
- *  to sort a list of points.
- *  @param p a point to be compared
- *  @return true if and only if the current point is strictly less than
- *  the input point
- */
-bool Point::operator<(const Point &p) const {
-  // If the x-coordinates are (approximately) equal, then compare on y.
-  if (approxEqual(x, p.x)) {
-    if (approxEqual(y, p.y)) return false;
-    return lessThan(y, p.y);
-  }
-  // Otherwise, just compare on x.
-  return lessThan(x, p.x);
-}
 
 /**
  *  Returns true if and only if the given point is inside the given rectangle.
@@ -55,10 +37,10 @@ bool intersect(const Rectangle &r, const Rectangle &s) {
  */
 Rectangle empty() {
   return {
-    std::numeric_limits<double>::infinity(),
-    std::numeric_limits<double>::infinity(),
-    -std::numeric_limits<double>::infinity(),
-    -std::numeric_limits<double>::infinity()
+    std::numeric_limits<int32_t>::max(),
+    std::numeric_limits<int32_t>::max(),
+    std::numeric_limits<int32_t>::min(),
+    std::numeric_limits<int32_t>::min()
   };
 }
 
@@ -87,8 +69,8 @@ Rectangle mbr(const std::vector<Point> &pts) {
  */
 Rectangle enlarge(const Rectangle &r, const Point &p) {
   return {
-    fmin(r.lx, p.x), fmin(r.ly, p.y),
-    fmax(r.ux, p.x), fmax(r.uy, p.y)
+    std::min(r.lx, p.x), std::min(r.ly, p.y),
+    std::max(r.ux, p.x), std::max(r.uy, p.y)
   };
 }
 
@@ -100,7 +82,7 @@ Rectangle enlarge(const Rectangle &r, const Point &p) {
  */
 Rectangle enlarge(const Rectangle &r, const Rectangle &s) {
   return {
-    fmin(r.lx, s.lx), fmin(r.ly, s.ly),
-    fmax(r.ux, s.ux), fmax(r.uy, s.uy)
+    std::min(r.lx, s.lx), std::min(r.ly, s.ly),
+    std::max(r.ux, s.ux), std::max(r.uy, s.uy)
   };
 }

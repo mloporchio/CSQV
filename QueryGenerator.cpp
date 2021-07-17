@@ -2,8 +2,8 @@
  *  @file QueryGenerator.cpp
  *  @author Matteo Loporchio
  *
- *  Given a data set, outputs a file with query rectangles, along
- *  with their pre-computed fraction of matching records.
+ *  Given a data set, this program outputs a file with query rectangles,
+ *  along with their pre-computed fraction of matching records.
  *  Queries are generated uniformly at random in a given 2D space.
  */
 
@@ -24,14 +24,14 @@ int main(int argc, char const *argv[]) {
   // Generate n_queries random rectangles inside the MBR.
   std::random_device rd;
   std::default_random_engine eng(rd());
-  std::uniform_real_distribution<double> lxd(r.lx, r.ux), lyd(r.ly, r.uy);
+  std::uniform_int_distribution<int32_t> lxd(r.lx, r.ux), lyd(r.ly, r.uy);
   std::ofstream out;
   out.open(query_file);
   out << "lx,ly,ux,uy,matching,fraction\n";
   for (size_t i = 0; i < n_queries; i++) {
     // Generate a random query rectangle.
-    double lx = lxd(eng), ly = lyd(eng), ux, uy;
-    std::uniform_real_distribution<double> uxd(lx, r.ux), uyd(ly, r.uy);
+    int32_t lx = lxd(eng), ly = lyd(eng), ux, uy;
+    std::uniform_int_distribution<double> uxd(lx, r.ux), uyd(ly, r.uy);
     ux = uxd(eng); uy = uyd(eng);
     Rectangle rq = {lx, ly, ux, uy};
     // Compute the number of matching records and the fraction.

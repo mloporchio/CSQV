@@ -25,8 +25,8 @@ std::vector<Rectangle> load_query_file(const std::string &path) {
   std::vector<Rectangle> result;
   for (csv::CSVRow &row : reader) {
     // Read the coordinates
-    double lx = row["lx"].get<double>(), ly = row["ly"].get<double>(),
-    ux = row["ux"].get<double>(), uy = row["uy"].get<double>();
+    int32_t lx = row["lx"].get<int32_t>(), ly = row["ly"].get<int32_t>(),
+    ux = row["ux"].get<int32_t>(), uy = row["uy"].get<int32_t>();
     // Create the rectangle.
     result.push_back({lx, ly, ux, uy});
   }

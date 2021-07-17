@@ -9,20 +9,19 @@
 #include <vector>
 
 /**
- *  A point is represented by two real coordinates.
+ *  A point is represented by two integer coordinates.
  */
 struct Point {
-  double x; ///< The x-coordinate of the point
-  double y; ///< The y-coordinate of the point
-
+  int32_t x; ///< The x-coordinate of the point
+  int32_t y; ///< The y-coordinate of the point
   /**
-   *  "Strictly-less-than" comparison operator that can be used
-   *  to sort a list of points.
+   *  "Strictly-less-than" operator to compare points lexicographically.
    *  @param p a point to be compared
-   *  @return true if and only if the current point is strictly less than
-   *  the input point
+   *  @return true if and only if the current point precedes p
    */
-  bool operator<(const Point &p) const;
+  bool operator<(const Point &p) const {
+    return ((x != p.x) ? (x < p.x) : (y < p.y));
+  }
 };
 
 /**
@@ -30,10 +29,10 @@ struct Point {
  *  and upper-right vertices.
  */
 struct Rectangle {
-  double lx; ///< The x-coordinate of the lower-left vertex
-  double ly; ///< The y-coordinate of the lower-left vertex
-  double ux; ///< The x-coordinate of the upper-right vertex
-  double uy; ///< The y-coordinate of the upper-right vertex
+  int32_t lx; ///< The x-coordinate of the lower-left vertex
+  int32_t ly; ///< The y-coordinate of the lower-left vertex
+  int32_t ux; ///< The x-coordinate of the upper-right vertex
+  int32_t uy; ///< The y-coordinate of the upper-right vertex
 };
 
 /**

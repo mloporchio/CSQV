@@ -4,7 +4,6 @@
  */
 
 #include "Node.hpp"
-#include "Utils.hpp"
 #include <algorithm>
 #include <limits>
 #include <queue>
@@ -55,7 +54,7 @@ Node *packed(std::vector<Record> &data, size_t c) {
   // Pre-compute the number of leaves and initialize the vector.
   std::vector<Node*> curr;
   curr.reserve((data.size() / c) + ((data.size() % c) != 0));
-  // Sort the points in ascending order.
+  // Sort the records in ascending order.
   std::sort(data.begin(), data.end());
   // Split the records into chunks of size c
   // and then create a leaf node for each chunk.
