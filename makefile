@@ -10,7 +10,7 @@ LD_FLAGS= -L/usr/local/opt/libressl/lib -lcrypto
 .PHONY: all clean
 
 OBJECTS=Buffer.o Geometry.o Hash.o Node.o Query.o Record.o
-TARGETS=TestIndex TestQuery QueryGenerator
+TARGETS=TestIndex TestQuery QueryGen
 
 %.o: %.cpp
 	$(CXX) $(CXX_FLAGS) -c $^
@@ -21,8 +21,8 @@ TestIndex: $(OBJECTS) TestIndex.o
 TestQuery: $(OBJECTS) TestQuery.o
 	$(CXX) $(LD_FLAGS) $^ -o TestQuery
 
-QueryGenerator: $(OBJECTS) QueryGenerator.o
-	$(CXX) $(LD_FLAGS) $^ -o QueryGenerator
+QueryGen: $(OBJECTS) QueryGen.o
+	$(CXX) $(LD_FLAGS) $^ -o QueryGen
 
 all: $(TARGETS)
 

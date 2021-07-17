@@ -1,5 +1,5 @@
 /**
- *  @file QueryGenerator.cpp
+ *  @file QueryGen.cpp
  *  @author Matteo Loporchio
  *
  *  Given a data set, this program outputs a file with query rectangles,
