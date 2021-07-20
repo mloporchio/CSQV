@@ -17,7 +17,7 @@
 #define N_PARTS(n, k) (((n) / (k)) + (((n) % (k)) != 0))
 
 /**
- *  Defines the number of bytes needed to represent a pair
+ *  This is the number of bytes needed to represent a pair
  *  made up of a rectangle and a SHA-256 digest.
  */
 #define ENTRY_SIZE (4*sizeof(int32_t)+SHA256_DIGEST_LENGTH)

@@ -13,7 +13,7 @@
  */
 class Buffer {
 private:
-  std::vector<uint8_t> buf;
+  std::vector<uint8_t> buf; ///< The vector where bytes are actually stored.
 public:
   /**
    *  Default class constructor.

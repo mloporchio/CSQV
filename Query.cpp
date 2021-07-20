@@ -35,7 +35,7 @@ size_t count_records(VObject *vo) {
 /**
  *  This function can be used to query the MR-tree index recursively
  *  to retrieve all points that belong to the query rectangle.
- *  The function returns a verification object for the tree root.
+ *  The function returns a verification object for the root node.
  *  @param r the root of the MR-tree
  *  @param q the query rectangle
  *  @return a VO for the root
@@ -123,7 +123,7 @@ VResult *verify(VObject *vo, const Rectangle &q) {
 /**
  *  This function can be used to query the MR-tree index iteratively
  *  to retrieve all points that belong to the query rectangle.
- *  The function returns a verification object for the tree root.
+ *  The function returns a verification object for the root node.
  *  @param r the root of the MR-tree
  *  @param q the query rectangle
  *  @return a VO for the root

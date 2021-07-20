@@ -2,9 +2,13 @@
  *  @file QueryGen.cpp
  *  @author Matteo Loporchio
  *
- *  Given a data set, this program outputs a file with query rectangles,
- *  along with their pre-computed fraction of matching records.
- *  Queries are generated uniformly at random in a given 2D space.
+ *  Given a data set, this program outputs a file with query rectangles
+ *  generated uniformly at random. For each query, we also pre-compute
+ *  the corresponding fraction of matching records.
+ *
+ *  To run the program, the following parameters are required:
+ *
+ *    QueryGen <data_file> <query_file> <n_queries>
  */
 
 #include "Geometry.hpp"

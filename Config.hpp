@@ -19,7 +19,7 @@
 //#define LOG_RECT
 
 /**
- *
+ *  This is the path of the file containing the MBRs stored at the root.
  */
 //#define LOG_RECT_FILE "rectangles.csv"
 

@@ -6,7 +6,7 @@
  *  of a MR-tree index from a set of records.
  *  In order to run it, the following parameters are required:
  *
- *    <filename> <capacity>
+ *    TestIndex <filename> <capacity>
  */
 
 #include "Node.hpp"

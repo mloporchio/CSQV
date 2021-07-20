@@ -5,7 +5,7 @@
  *  This program can be used to test the MR-tree query and verification
  *  algorithms. To execute it, the following parameters are required:
  *
- *    <data_file> <query_file> <capacity>
+ *    TestQuery <data_file> <query_file> <capacity>
  */
 
 #include "csv.hpp"
