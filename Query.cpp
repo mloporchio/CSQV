@@ -8,7 +8,6 @@
 #include <map>
 #include <stack>
 #include <utility>
-#include <iostream>
 
 /**
  *  Counts the number of records inside the verification object.
@@ -34,7 +33,7 @@ size_t count_records(VObject *vo) {
 }
 
 /**
- *  This function can be used to query the MR-tree index in order
+ *  This function can be used to query the MR-tree index recursively
  *  to retrieve all points that belong to the query rectangle.
  *  The function returns a verification object for the tree root.
  *  @param r the root of the MR-tree
@@ -46,7 +45,7 @@ VObject *query(Node *r, const Rectangle &q) {
   if (!r) return NULL;
   // If the node is a leaf, we construct a VO with all its points.
   if (r->getType() == N_LEAF) {
-    return new VLeaf(((LeafNode*) r)->getData());
+    return new VLeaf(std::move(((LeafNode*) r)->getData()));
   }
   // Otherwise, we need to check if the MBR of the node intersects
   // the query rectangle.
@@ -59,7 +58,7 @@ VObject *query(Node *r, const Rectangle &q) {
   // Otherwise, we need to explore recursively all subtrees rooted in
   // the current node.
   VContainer *cont = new VContainer();
-  std::vector<Node*> children = ((IntNode*) r)->getChildren();
+  const std::vector<Node*> &children = ((IntNode*) r)->getChildren();
   for (Node *c : children) {
     VObject *partial = query(c, q);
     cont->append(partial);
@@ -68,8 +67,62 @@ VObject *query(Node *r, const Rectangle &q) {
 }
 
 /**
+ *  This method can be used to reconstruct the MR-tree index root recursively.
+ *  The output of this method is a <code>VResult</code> object
+ *  that contains the result set, the bounding rectangle and digest of the root.
+ *  @param vo a verification object
+ *  @param q the query rectangle
+ *  @return the reconstructed information
+ */
+VResult *verify(VObject *vo, const Rectangle &q) {
+  // Check if the input is legal.
+  if (!vo) return NULL;
+  // Check the type of the VO.
+  VObjectType type = vo->getType();
+  // If the VO corresponds to a leaf, we reconstruct the node
+  // by computing its MBR and hash from the set of record it contains.
+  if (type == V_LEAF) {
+    std::vector<Record> v_data = ((VLeaf *) vo)->getData(), data;
+    data.reserve(v_data.size());
+    Buffer buf(v_data.size() * sizeof(Record));
+    Rectangle rect = empty();
+    for (Record &e : v_data) {
+      rect = enlarge(rect, e.loc);
+      put_record(buf, e);
+      if (match(e, q)) data.push_back(e);
+    }
+    return new VResult(rect, sha256(buf), std::move(data));
+  }
+  // If the VO corresponds to a pruned internal node, we reconstruct
+  // using the provided MBR and digest.
+  if (type == V_PRUNED) {
+    VPruned *pr = (VPruned *) vo;
+    return new VResult(pr->getRect(), pr->getHash(), std::vector<Record>());
+  }
+  // Otherwise we must reconstruct a non-pruned internal node.
+  // This node is represented by a VO container.
+  VContainer *cont = (VContainer *) vo;
+  std::vector<Record> data;
+  Buffer buf;
+  Rectangle rect = empty();
+  // Recursively examine each VO in the container.
+  for (size_t i = 0; i < cont->size(); i++) {
+    VResult *partial = verify((VObject*) cont->get(i), q);
+    // Take all the matching records and add them to the result set.
+    std::vector<Record> v_data = partial->getData();
+    data.insert(std::end(data), std::begin(v_data), std::end(v_data));
+    // Compute the hash and bounding rectangle.
+    Rectangle r = partial->getRect();
+    hash_t h = partial->getHash();
+    rect = enlarge(rect, r);
+    buf.put(r.lx).put(r.ly).put(r.ux).put(r.uy).put_bytes(h.data(), h.size());
+  }
+  return new VResult(rect, sha256(buf), std::move(data));
+}
+
+/**
  *  This function can be used to query the MR-tree index iteratively
- *  in order to retrieve all points that belong to the query rectangle.
+ *  to retrieve all points that belong to the query rectangle.
  *  The function returns a verification object for the tree root.
  *  @param r the root of the MR-tree
  *  @param q the query rectangle
@@ -89,8 +142,7 @@ VObject *query_it(Node *r, const Rectangle &q) {
     VObject *parentVO = curr.second, *currVO = NULL;
     // If the current node is a leaf, we construct a VO with all its points.
     if (currNode->getType() == N_LEAF) {
-      std::vector<Record> data = ((LeafNode*) currNode)->getData();
-      currVO = new VLeaf(data);
+      currVO = new VLeaf(std::move(((LeafNode*) currNode)->getData()));
     }
     // Otherwise, we have reached an internal node.
     else {
@@ -114,74 +166,17 @@ VObject *query_it(Node *r, const Rectangle &q) {
 }
 
 /**
- *  This method can be used to recursively reconstruct
- *  the root of the MR-tree index from a given verification object.
- *  The output of this method is a
- *  <code>VResult</code> object that contains the reconstructed result set
- *  together with the bounding rectangle and digest of the root node.
- *  @param vo a verification object
- *  @param q the query rectangle
- *  @return the reconstructed information
- */
-VResult *verify(VObject *vo, const Rectangle &q) {
-  // Check if the input is legal.
-  if (!vo) return NULL;
-  // Check the type of the VO.
-  VObjectType type = vo->getType();
-  // If the VO corresponds to a leaf, we reconstruct the node
-  // by computing its MBR and hash from the set of record it contains.
-  if (type == V_LEAF) {
-    std::vector<Record> data, v_data = ((VLeaf *) vo)->getData();
-    Rectangle rect = empty();
-    Buffer buf;
-    for (Record &e : v_data) {
-      rect = enlarge(rect, e.loc);
-      put_record(buf, e);
-      if (match(e, q)) data.push_back(e);
-    }
-    return new VResult(rect, sha256(buf), data);
-  }
-  // If the VO corresponds to a pruned internal node, we reconstruct
-  // using the provided MBR and digest.
-  if (type == V_PRUNED) {
-    VPruned *pr = (VPruned *) vo;
-    return new VResult(pr->getRect(), pr->getHash(), std::vector<Record>());
-  }
-  // Otherwise we must reconstruct a non-pruned internal node.
-  // This node is represented by a VO container.
-  VContainer *cont = (VContainer *) vo;
-  std::vector<Record> data;
-  Rectangle rect = empty();
-  Buffer buf;
-  // Recursively examine each VO in the container.
-  for (size_t i = 0; i < cont->size(); i++) {
-    VResult *partial = verify((VObject*) cont->get(i), q);
-    // Take all the matching records and add them to the result set.
-    std::vector<Record> v_data = partial->getData();
-    data.insert(std::end(data), std::begin(v_data), std::end(v_data));
-    // Compute the hash and bounding rectangle.
-    Rectangle r = partial->getRect();
-    hash_t h = partial->getHash();
-    rect = enlarge(rect, r);
-    buf.put(r.lx).put(r.ly).put(r.ux).put(r.uy).put_bytes(h.data(), h.size());
-  }
-  return new VResult(rect, sha256(buf), data);
-}
-
-/**
- *  This method can be used to iteratively reconstruct
- *  the root of the MR-tree index from a given verification object.
+ *  This method can be used to reconstruct the MR-tree index root iteratively.
  *  The output of this method is a <code>VResult</code> object
- *  that contains the reconstructed result set
- *  together with the bounding rectangle and digest of the root node.
+ *  that contains the result set, the bounding rectangle and digest of the root.
  *  @param vo a verification object
  *  @param q the query rectangle
  *  @return the reconstructed information
  */
 VResult *verify_it(VObject *vo, const Rectangle &q) {
-  // Check if the input is legal.
-  if (!vo) return NULL;
   VResult *result = NULL;
+  // First, we check if the input is legal.
+  if (!vo) return result;
   std::stack<std::pair<VObject*, VObject*>> stack;
   std::map<VObject*, bool> visited;
   std::map<VObject*, std::vector<VResult*>> content;
@@ -211,8 +206,8 @@ VResult *verify_it(VObject *vo, const Rectangle &q) {
       // we have to reconstruct.
       else {
         std::vector<Record> data;
-        Rectangle rect = empty();
         Buffer buf;
+        Rectangle rect = empty();
         for (VResult *vr : content[curr]) {
           // Collect all records.
           std::vector<Record> vdata = vr->getData();
@@ -224,7 +219,7 @@ VResult *verify_it(VObject *vo, const Rectangle &q) {
           buf.put(r.lx).put(r.ly).put(r.ux).put(r.uy)
           .put_bytes(h.data(), h.size());
         }
-        VResult *partial = new VResult(rect, sha256(buf), data);
+        VResult *partial = new VResult(rect, sha256(buf), std::move(data));
         if (parent) content[parent].push_back(partial);
         else result = partial;
         stack.pop();
@@ -236,15 +231,16 @@ VResult *verify_it(VObject *vo, const Rectangle &q) {
       // If the node is a leaf, reconstruct its MBR and hash from
       // the records it contains.
       if (type == V_LEAF) {
-        std::vector<Record> data, v_data = ((VLeaf*) curr)->getData();
+        std::vector<Record> v_data = ((VLeaf *) vo)->getData(), data;
+        data.reserve(v_data.size());
+        Buffer buf(v_data.size() * sizeof(Record));
         Rectangle rect = empty();
-        Buffer buf;
         for (Record &e : v_data) {
           rect = enlarge(rect, e.loc);
           put_record(buf, e);
           if (match(e, q)) data.push_back(e);
         }
-        partial = new VResult(rect, sha256(buf), data);
+        partial = new VResult(rect, sha256(buf), std::move(data));
       }
       // Otherwise, if the node is pruned, we reconstruct using
       // its MBR and hash.

@@ -11,6 +11,14 @@
 Buffer::Buffer() {/* Nothing to do here! */}
 
 /**
+ *  Class constructor that initializes the buffer with a given capacity.
+ *  @param capacity the initial buffer capacity
+ */
+Buffer::Buffer(size_t capacity) {
+  buf.reserve(capacity);
+}
+
+/**
  *  Returns a pointer to the underlying array.
  *  @return a pointer to the underlying array
  */

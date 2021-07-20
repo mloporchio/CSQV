@@ -13,76 +13,68 @@
  *  @param data the list of records
  *  @return a leaf MR-tree node
  */
-LeafNode *make_leaf(std::vector<Record> &data) {
+LeafNode *make_leaf(std::vector<Record> data) {
   Rectangle rect = empty();
-  Buffer buf;
+  Buffer buf(data.size() * sizeof(Record));
   for (Record &e : data) {
     rect = enlarge(rect, e.loc);
     put_record(buf, e);
   }
-  return new LeafNode(rect, sha256(buf), data);
+  return new LeafNode(rect, sha256(buf), std::move(data));
 }
 
 /**
  *  Creates a new internal node from a list of child nodes.
  *  The new node is the parent of all these children.
- *  @param data the list of child nodes
+ *  @param children the list of child nodes
  *  @return an internal MR-tree node
  */
-IntNode *make_internal(std::vector<Node*> &children) {
+IntNode *make_internal(std::vector<Node*> children) {
   Rectangle rect = empty();
-  Buffer buf;
+  Buffer buf(children.size() * ENTRY_SIZE);
   for (Node *child : children) {
-    if (!child) continue;
     Rectangle r = child -> getRect();
     hash_t h = child -> getHash();
     rect = enlarge(rect, r);
     buf.put(r.lx).put(r.ly).put(r.ux).put(r.uy).put_bytes(h.data(), h.size());
   }
-  return new IntNode(rect, sha256(buf), children);
+  return new IntNode(rect, sha256(buf), std::move(children));
 }
 
 /**
- *  Builds a MR-tree from a list of records using a bulk-loading
- *  (a.k.a packed) algorithm.
+ *  Builds a MR-tree from a list of records using a bulk-loading algorithm.
  *  @param data list of records
  *  @param c page capacity
  *  @return a pointer to the root node of the tree
  */
 Node *packed(std::vector<Record> &data, size_t c) {
-  size_t l = 0, r = 0;
-  // Pre-compute the number of leaves and initialize the vector.
-  std::vector<Node*> curr;
-  curr.reserve((data.size() / c) + ((data.size() % c) != 0));
   // Sort the records in ascending order.
   std::sort(data.begin(), data.end());
-  // Split the records into chunks of size c
-  // and then create a leaf node for each chunk.
-  for (l = 0; l < data.size(); l += c) {
-    r = std::min(data.size(), l+c);
+  // Create the leaves by splitting the list of points in chunks of size c.
+  std::vector<Node*> curr;
+  curr.reserve(N_PARTS(data.size(), c));
+  for (size_t l = 0; l < data.size(); l += c) {
+    size_t r = std::min(data.size(), l+c);
     std::vector<Record> temp;
     temp.reserve(r-l);
     std::copy(data.begin()+l, data.begin()+r, std::back_inserter(temp));
-    curr.push_back(make_leaf(temp));
+    curr.push_back(make_leaf(std::move(temp)));
   }
-  // Start merging.
+  // Create the internal nodes. Split and merge until one node is left.
   while (curr.size() > 1) {
-    // Divide the list of current nodes into chunks.
-    // Then, for each chunk, merge all its nodes and create a new one.
     std::vector<Node*> merged;
-    merged.reserve((curr.size() / c) + ((curr.size() % c) != 0));
-    for (l = 0; l < curr.size(); l += c) {
-      r = std::min(curr.size(), l+c);
+    merged.reserve(N_PARTS(curr.size(), c));
+    for (size_t l = 0; l < curr.size(); l += c) {
+      size_t r = std::min(curr.size(), l+c);
       std::vector<Node*> temp;
       temp.reserve(r-l);
       std::copy(curr.begin()+l, curr.begin()+r, std::back_inserter(temp));
-      merged.push_back(make_internal(temp));
+      merged.push_back(make_internal(std::move(temp)));
     }
-    // These nodes become the new working set.
-    curr = std::move(merged);
+    curr = merged;
   }
-  // Return the root of the MR-tree, i.e. the only node left.
-  return curr.at(0);
+  // Return the only node left.
+  return curr[0];
 }
 
 /**
@@ -119,10 +111,10 @@ void delete_tree(Node *r) {
  *  @param r pointer to the tree root
  *  @return the number of leaves
  */
-size_t count_leaves(Node *r) {
+int count_leaves(Node *r) {
   // Check if the input is legal.
-  if (!r) return 0;
-  size_t count = 0;
+  if (!r) return -1;
+  int count = 0;
   // Create an empty queue and insert the root node.
   std::queue<Node*> q;
   q.push(r);
@@ -146,12 +138,12 @@ size_t count_leaves(Node *r) {
  *  @param r pointer to the tree root
  *  @param the height of the tree
  */
-size_t height(Node *r) {
+int height(Node *r) {
   // Check if the input is legal.
-  if (!r) return 0;
+  if (!r) return -1;
   if (r->getType() == N_LEAF) return 0;
   // If the node is internal, call the function recursively.
-  size_t hmax = -std::numeric_limits<size_t>::infinity();
+  int hmax = -1;
   std::vector<Node*> children = ((IntNode*) r)->getChildren();
   for (Node *child : children) hmax = std::max(hmax, height(child));
   return 1 + hmax;

@@ -33,7 +33,7 @@ class VLeaf : public VObject {
 private:
   std::vector<Record> data;
 public:
-  VLeaf(std::vector<Record> data) : VObject(V_LEAF), data(data) {}
+  VLeaf(std::vector<Record> data) : VObject(V_LEAF), data(std::move(data)) {}
   std::vector<Record> getData() {return data;}
 };
 
@@ -76,7 +76,7 @@ private:
   std::vector<Record> data;
 public:
   VResult(Rectangle r, hash_t h, std::vector<Record> data) :
-  rect(r), hash(h), data(data) {};
+  rect(r), hash(h), data(std::move(data)) {};
   Rectangle getRect() {return rect;}
   hash_t getHash() {return hash;}
   std::vector<Record> getData() {return data;}
@@ -101,8 +101,18 @@ size_t count_records(VObject *vo);
 VObject *query(Node *r, const Rectangle &q);
 
 /**
+ *  This method can be used to reconstruct the MR-tree index root recursively.
+ *  The output of this method is a <code>VResult</code> object
+ *  that contains the result set, the bounding rectangle and digest of the root.
+ *  @param vo a verification object
+ *  @param q the query rectangle
+ *  @return the reconstructed information
+ */
+VResult *verify(VObject *vo, const Rectangle &q);
+
+/**
  *  This function can be used to query the MR-tree index iteratively
- *  in order to retrieve all points that belong to the query rectangle.
+ *  to retrieve all points that belong to the query rectangle.
  *  The function returns a verification object for the tree root.
  *  @param r the root of the MR-tree
  *  @param q the query rectangle
@@ -111,23 +121,9 @@ VObject *query(Node *r, const Rectangle &q);
 VObject *query_it(Node *r, const Rectangle &q);
 
 /**
- *  This method can be used to recursively reconstruct
- *  the root of the MR-tree index from a given verification object.
- *  The output of this method is a
- *  <code>VResult</code> object that contains the reconstructed result set
- *  together with the bounding rectangle and digest of the root node.
- *  @param vo a verification object
- *  @param q the query rectangle
- *  @return the reconstructed information
- */
-VResult *verify(VObject *vo, const Rectangle &q);
-
-/**
- *  This method can be used to iteratively reconstruct
- *  the root of the MR-tree index from a given verification object.
+ *  This method can be used to reconstruct the MR-tree index root iteratively.
  *  The output of this method is a <code>VResult</code> object
- *  that contains the reconstructed result set
- *  together with the bounding rectangle and digest of the root node.
+ *  that contains the result set, the bounding rectangle and digest of the root.
  *  @param vo a verification object
  *  @param q the query rectangle
  *  @return the reconstructed information

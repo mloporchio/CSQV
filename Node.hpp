@@ -11,6 +11,18 @@
 #include "Record.hpp"
 
 /**
+ *  Defines the number of chunks obtained by splitting a list
+ *  of n elements into groups of k elements each.
+ */
+#define N_PARTS(n, k) (((n) / (k)) + (((n) % (k)) != 0))
+
+/**
+ *  Defines the number of bytes needed to represent a pair
+ *  made up of a rectangle and a SHA-256 digest.
+ */
+#define ENTRY_SIZE (4*sizeof(int32_t)+SHA256_DIGEST_LENGTH)
+
+/**
  *  This enum defines the kind of a MR-tree node, which can be
  *  either a leaf or an internal node.
  */
@@ -72,7 +84,7 @@ public:
    *  @param h the hash value of the node
    *  @param data a list of records to be stored
    */
-  LeafNode(Rectangle r, hash_t h, std::vector<Record> &data)
+  LeafNode(Rectangle r, hash_t h, std::vector<Record> data)
   : Node(N_LEAF, r, h), data(std::move(data)) {}
 
   /**
@@ -95,8 +107,13 @@ public:
    *  @param h the hash value of the node
    *  @return
    */
-  IntNode(Rectangle r, hash_t h, std::vector<Node*> &children)
+  IntNode(Rectangle r, hash_t h, std::vector<Node*> children)
   : Node(N_INT, r, h), children(std::move(children)) {}
+
+  /**
+   *  Returns the list of children of the node.
+   *  @return the list of children
+   */
   std::vector<Node*> getChildren() {return children;}
 };
 
@@ -105,19 +122,18 @@ public:
  *  @param data the list of records
  *  @return a leaf MR-tree node
  */
-LeafNode *make_leaf(std::vector<Record> &data);
+LeafNode *make_leaf(std::vector<Record> data);
 
 /**
  *  Creates a new internal node from a list of child nodes.
  *  The new node is the parent of all these children.
- *  @param data the list of child nodes
+ *  @param children the list of child nodes
  *  @return an internal MR-tree node
  */
-IntNode *make_internal(std::vector<Node*> &children);
+IntNode *make_internal(std::vector<Node*> children);
 
 /**
- *  Builds a MR-tree from a list of records using a bulk-loading
- *  (a.k.a. packed) algorithm.
+ *  Builds a MR-tree from a list of records using a bulk-loading algorithm.
  *  @param data list of records
  *  @param c page capacity
  *  @return a pointer to the root node of the tree
@@ -136,14 +152,13 @@ void delete_tree(Node *r);
  *  @param r pointer to the tree root
  *  @return the number of leaves
  */
-size_t count_leaves(Node *r);
-
+int count_leaves(Node *r);
 
 /**
  *  Computes the height of the tree.
  *  @param r pointer to the tree root
  *  @param the height of the tree
  */
-size_t height(Node *r);
+int height(Node *r);
 
 #endif

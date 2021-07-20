@@ -21,6 +21,12 @@ public:
   Buffer();
 
   /**
+   *  Class constructor that initializes the buffer with a given capacity.
+   *  @param capacity the initial buffer capacity
+   */
+  Buffer(size_t capacity);
+
+  /**
    *  Returns a pointer to the underlying array.
    *  @return a pointer to the underlying array
    */
