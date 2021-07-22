@@ -55,9 +55,7 @@ Node *packed(std::vector<Record> &data, size_t c) {
   curr.reserve(N_PARTS(data.size(), c));
   for (size_t l = 0; l < data.size(); l += c) {
     size_t r = std::min(data.size(), l+c);
-    std::vector<Record> temp;
-    temp.reserve(r-l);
-    std::copy(data.begin()+l, data.begin()+r, std::back_inserter(temp));
+    std::vector<Record> temp(data.begin()+l, data.begin()+r);
     curr.push_back(make_leaf(std::move(temp)));
   }
   // Create the internal nodes. Split and merge until one node is left.
@@ -66,9 +64,7 @@ Node *packed(std::vector<Record> &data, size_t c) {
     merged.reserve(N_PARTS(curr.size(), c));
     for (size_t l = 0; l < curr.size(); l += c) {
       size_t r = std::min(curr.size(), l+c);
-      std::vector<Node*> temp;
-      temp.reserve(r-l);
-      std::copy(curr.begin()+l, curr.begin()+r, std::back_inserter(temp));
+      std::vector<Node*> temp(curr.begin()+l, curr.begin()+r);
       merged.push_back(make_internal(std::move(temp)));
     }
     curr = merged;

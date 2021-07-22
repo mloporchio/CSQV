@@ -56,11 +56,11 @@ int main(int argc, char const *argv[]) {
   for (size_t i = 0; i < queries.size(); i++) {
     // Time the execution of the query algorithm.
     auto q_start = high_resolution_clock::now();
-    vo = query_it(root, queries[i]);
+    vo = query(root, queries[i]);
     auto q_stop = high_resolution_clock::now();
     // Time the execution of the verification algorithm.
     auto v_start = high_resolution_clock::now();
-    vr = verify_it(vo, queries[i]);
+    vr = verify(vo, queries[i]);
     auto v_stop = high_resolution_clock::now();
     // Update the values for statistics.
     returned += count_records(vo);

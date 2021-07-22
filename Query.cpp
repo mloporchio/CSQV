@@ -8,6 +8,7 @@
 #include <map>
 #include <stack>
 #include <utility>
+#include <iostream>
 
 /**
  *  Counts the number of records inside the verification object.
@@ -103,14 +104,14 @@ VResult *verify(VObject *vo, const Rectangle &q) {
   // This node is represented by a VO container.
   VContainer *cont = (VContainer *) vo;
   std::vector<Record> data;
-  Buffer buf;
+  Buffer buf(cont->size() * ENTRY_SIZE);
   Rectangle rect = empty();
   // Recursively examine each VO in the container.
   for (size_t i = 0; i < cont->size(); i++) {
     VResult *partial = verify((VObject*) cont->get(i), q);
     // Take all the matching records and add them to the result set.
     std::vector<Record> v_data = partial->getData();
-    data.insert(std::end(data), std::begin(v_data), std::end(v_data));
+    std::move(v_data.begin(), v_data.end(), std::back_inserter(data));
     // Compute the hash and bounding rectangle.
     Rectangle r = partial->getRect();
     hash_t h = partial->getHash();
@@ -205,13 +206,14 @@ VResult *verify_it(VObject *vo, const Rectangle &q) {
       // On the other hand, if the node has already been visited
       // we have to reconstruct.
       else {
+        std::vector<VResult*> partial_results = content[curr];
         std::vector<Record> data;
-        Buffer buf;
+        Buffer buf(partial_results.size() * ENTRY_SIZE);
         Rectangle rect = empty();
-        for (VResult *vr : content[curr]) {
+        for (VResult *vr : partial_results) {
           // Collect all records.
-          std::vector<Record> vdata = vr->getData();
-          data.insert(std::end(data), std::begin(vdata), std::end(vdata));
+          std::vector<Record> v_data = vr->getData();
+          std::move(v_data.begin(), v_data.end(), std::back_inserter(data));
           // Compute the MBR and hashes.
           Rectangle r = vr->getRect();
           hash_t h = vr->getHash();
@@ -231,7 +233,7 @@ VResult *verify_it(VObject *vo, const Rectangle &q) {
       // If the node is a leaf, reconstruct its MBR and hash from
       // the records it contains.
       if (type == V_LEAF) {
-        std::vector<Record> v_data = ((VLeaf *) vo)->getData(), data;
+        std::vector<Record> v_data = ((VLeaf *) curr)->getData(), data;
         data.reserve(v_data.size());
         Buffer buf(v_data.size() * sizeof(Record));
         Rectangle rect = empty();

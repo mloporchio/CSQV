@@ -6,7 +6,7 @@
  *  of a MR-tree index from a set of records.
  *  In order to run it, the following parameters are required:
  *
- *    TestIndex <filename> <capacity>
+ *    TestIndex <filename> <capacity> [<rect_file>]
  */
 
 #include "Node.hpp"
@@ -38,11 +38,16 @@ void save_rect(Node *n, const std::string &filename) {
 int main(int argc, char **argv) {
   // Check the number of input arguments.
   if (argc < 3) {
-    std::cerr << "Usage: " << argv[0] << " <filename> <capacity>" << std::endl;
+    std::cerr << "Usage: " << argv[0] <<
+    " <filename> <capacity> [<rect_file>]" << std::endl;
     return 1;
   }
+  // Read the input parameters.
   std::string filename = argv[1];
   size_t capacity = atol(argv[2]);
+  // Check if the optional parameter (i.e. filename for logging rectangles)
+  // has been specified. If this is the case, initialize it.
+  char *rect_file = ((argc == 4) ? argv[3] : NULL);
   // Open the input file and parse its content.
   std::vector<Record> records = load_file(filename);
   // Build the MR-tree index.
@@ -50,10 +55,8 @@ int main(int argc, char **argv) {
   Node *root = packed(records, capacity);
   auto stop = high_resolution_clock::now();
   auto duration = duration_cast<microseconds>(stop - start);
-  #ifdef LOG_RECT
-  // Save the MBRs in the root to a file.
-  save_rect(root, LOG_RECT_FILE);
-  #endif
+  // If necessary, save the MBRs in the root to a file.
+  if (rect_file) save_rect(root, std::string(rect_file));
   // Print the results.
   std::cout
   << "Construction time (us): " << duration.count() << std::endl
