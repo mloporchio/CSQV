@@ -32,19 +32,6 @@ bool intersect(const Rectangle &r, const Rectangle &s) {
 }
 
 /**
- *  Returns an empty rectangle with vertices (+inf, +inf, -inf, -inf).
- *  @return an empty rectangle
- */
-Rectangle empty() {
-  return {
-    std::numeric_limits<int32_t>::max(),
-    std::numeric_limits<int32_t>::max(),
-    std::numeric_limits<int32_t>::min(),
-    std::numeric_limits<int32_t>::min()
-  };
-}
-
-/**
  *  Computes the minimum bounding rectangle of a list of points.
  *  @param pts list of points
  *  @return the minimum bounding rectangle of the points

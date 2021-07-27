@@ -56,19 +56,19 @@ public:
    *  Returns the type of the node.
    *  @return the node type
    */
-  NodeType getType() {return type;}
+  NodeType getType() const {return type;}
 
   /**
    *  Returns the MBR of the node.
    *  @return the bounding rectangle of the node
    */
-  Rectangle getRect() {return rect;}
+  Rectangle getRect() const {return rect;}
 
   /**
    *  Returns the digest of the node.
    *  @return the node digest
    */
-  hash_t getHash() {return hash;}
+  hash_t getHash() const {return hash;}
 };
 
 /**
@@ -91,7 +91,7 @@ public:
    *  Returns the list of records contained in the node.
    *  @return the list of records
    */
-  std::vector<Record> getData() {return data;}
+  std::vector<Record> getData() const {return data;}
 };
 
 /**
@@ -114,7 +114,7 @@ public:
    *  Returns the list of children of the node.
    *  @return the list of children
    */
-  std::vector<Node*> getChildren() {return children;}
+  std::vector<Node*> getChildren() const {return children;}
 };
 
 /**

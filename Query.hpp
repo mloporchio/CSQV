@@ -23,7 +23,7 @@ protected:
 public:
   VObject(VObjectType t) : type(t) {}
   virtual ~VObject() {}
-  VObjectType getType() {return type;}
+  VObjectType getType() const {return type;}
 };
 
 /**
@@ -34,7 +34,8 @@ private:
   std::vector<Record> data;
 public:
   VLeaf(std::vector<Record> data) : VObject(V_LEAF), data(std::move(data)) {}
-  std::vector<Record> getData() {return data;}
+  const std::vector<Record> &getData() const {return data;}
+  size_t getSize() const {return data.size();}
 };
 
 /**
@@ -46,8 +47,8 @@ private:
   hash_t hash;
 public:
   VPruned(Rectangle r, hash_t h) : VObject(V_PRUNED), rect(r), hash(h) {}
-  Rectangle getRect() {return rect;}
-  hash_t getHash() {return hash;}
+  Rectangle getRect() const {return rect;}
+  hash_t getHash() const {return hash;}
 };
 
 /**
@@ -59,8 +60,8 @@ private:
 public:
   VContainer() : VObject(V_CONTAINER) {}
   void append(VObject *vo) {if (vo) list.push_back(vo);}
-  VObject *get(size_t i) {return list.at(i);}
-  size_t size() {return list.size();}
+  VObject *get(size_t i) const {return list.at(i);}
+  size_t size() const {return list.size();}
 };
 
 /**
@@ -77,10 +78,10 @@ private:
 public:
   VResult(Rectangle r, hash_t h, std::vector<Record> data) :
   rect(r), hash(h), data(std::move(data)) {};
-  Rectangle getRect() {return rect;}
-  hash_t getHash() {return hash;}
-  std::vector<Record> getData() {return data;}
-  size_t count() {return data.size();}
+  Rectangle getRect() const {return rect;}
+  hash_t getHash() const {return hash;}
+  const std::vector<Record> &getData() {return data;}
+  size_t count() const {return data.size();}
 };
 
 /**
@@ -109,25 +110,5 @@ VObject *query(Node *r, const Rectangle &q);
  *  @return the reconstructed information
  */
 VResult *verify(VObject *vo, const Rectangle &q);
-
-/**
- *  This function can be used to query the MR-tree index iteratively
- *  to retrieve all points that belong to the query rectangle.
- *  The function returns a verification object for the root node.
- *  @param r the root of the MR-tree
- *  @param q the query rectangle
- *  @return a VO for the root
- */
-VObject *query_it(Node *r, const Rectangle &q);
-
-/**
- *  This method can be used to reconstruct the MR-tree index root iteratively.
- *  The output of this method is a <code>VResult</code> object
- *  that contains the result set, the bounding rectangle and digest of the root.
- *  @param vo a verification object
- *  @param q the query rectangle
- *  @return the reconstructed information
- */
-VResult *verify_it(VObject *vo, const Rectangle &q);
 
 #endif

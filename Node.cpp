@@ -14,7 +14,7 @@
  *  @return a leaf MR-tree node
  */
 LeafNode *make_leaf(std::vector<Record> data) {
-  Rectangle rect = empty();
+  Rectangle rect = EMPTY_RECT;
   Buffer buf(data.size() * sizeof(Record));
   for (Record &e : data) {
     rect = enlarge(rect, e.loc);
@@ -30,7 +30,7 @@ LeafNode *make_leaf(std::vector<Record> data) {
  *  @return an internal MR-tree node
  */
 IntNode *make_internal(std::vector<Node*> children) {
-  Rectangle rect = empty();
+  Rectangle rect = EMPTY_RECT;
   Buffer buf(children.size() * ENTRY_SIZE);
   for (Node *child : children) {
     Rectangle r = child -> getRect();
@@ -49,7 +49,7 @@ IntNode *make_internal(std::vector<Node*> children) {
  */
 Node *packed(std::vector<Record> &data, size_t c) {
   // Sort the records in ascending order.
-  std::sort(data.begin(), data.end());
+  std::sort(data.begin(), data.end(), record_cmp);
   // Create the leaves by splitting the list of points in chunks of size c.
   std::vector<Node*> curr;
   curr.reserve(N_PARTS(data.size(), c));

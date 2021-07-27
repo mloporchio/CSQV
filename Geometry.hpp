@@ -35,6 +35,12 @@ struct Rectangle {
   int32_t uy; ///< The y-coordinate of the upper-right vertex
 };
 
+
+/**
+ *  The empty rectangle has vertices (+inf, +inf, -inf, -inf).
+ */
+#define EMPTY_RECT (Rectangle{INT_MAX, INT_MAX, INT_MIN, INT_MIN})
+
 /**
  *  Returns true if and only if the given point is inside the given rectangle.
  *  @param r a rectangle

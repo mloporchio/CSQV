@@ -23,19 +23,21 @@ struct Record {
   #ifdef Z_INDEX
   uint_fast64_t z_index; ///< Morton index of the location
   #endif
-  /**
-   *  "Strictly-less-than" operator to compare records.
-   *  @param e the other record
-   *  @return true if and only if the current record precedes e
-   */
-  bool operator<(const Record &e) const {
-    #ifdef Z_INDEX
-    return z_index < e.z_index;
-    #else
-    return loc < e.loc;
-    #endif
-  }
 };
+
+/**
+ *  Record comparison function.
+ *  @param e1 the first record
+ *  @param e2 the second record
+ *  @return true if and only if the first record precedes the second
+ */
+static inline bool record_cmp(const Record &e1, const Record &e2) {
+  #ifdef Z_INDEX
+  return e1.z_index < e2.z_index;
+  #else
+  return e1.loc < e2.loc;
+  #endif
+}
 
 /**
  *  Checks if a given record matches a query.
@@ -73,7 +75,7 @@ std::vector<Record> load_file(const std::string &path);
  *  @param buf the buffer
  *  @param r the record
  */
-static inline void put_record(Buffer &buf, Record &r) {
+static inline void put_record(Buffer &buf, const Record &r) {
   buf.put_bytes((uint8_t*) r.report_id.c_str(), r.report_id.size())
   .put(r.year)
   .put_bytes((uint8_t*) r.month.c_str(), r.month.size())

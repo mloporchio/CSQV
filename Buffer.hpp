@@ -53,8 +53,8 @@ public:
    *  @return a reference to the updated buffer
    */
   template<typename T>
-  Buffer &put(T &x) {
-    uint8_t *ptr = reinterpret_cast<uint8_t*>(&x);
+  Buffer &put(const T &x) {
+    const uint8_t *ptr = reinterpret_cast<const uint8_t*>(&x);
     for (size_t i = 0; i < sizeof(T); i++) buf.push_back(ptr[i]);
     return *this;
   }
