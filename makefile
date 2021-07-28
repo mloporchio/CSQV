@@ -9,7 +9,7 @@ LD_FLAGS= -L/usr/local/opt/libressl/lib -lcrypto
 
 .PHONY: all clean
 
-OBJECTS=Buffer.o Geometry.o Hash.o Node.o Query.o Record.o
+OBJECTS=Buffer.o Hash.o Node.o Query.o Record.o
 TARGETS=TestIndex TestQuery QueryGen
 
 %.o: %.cpp

@@ -23,7 +23,7 @@ int main(int argc, char const *argv[]) {
   size_t n_queries = atol(argv[3]);
   // Open the input file and compute the MBR of the data set.
   std::vector<Record> records = load_file(data_file);
-  Rectangle r = empty();
+  Rectangle r = EMPTY_RECT;
   for (Record &e : records) r = enlarge(r, e.loc);
   // Generate n_queries random rectangles inside the MBR.
   std::random_device rd;

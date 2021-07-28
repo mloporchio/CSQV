@@ -91,7 +91,7 @@ public:
    *  Returns the list of records contained in the node.
    *  @return the list of records
    */
-  std::vector<Record> getData() const {return data;}
+  const std::vector<Record> &getData() const {return data;}
 };
 
 /**
@@ -114,7 +114,7 @@ public:
    *  Returns the list of children of the node.
    *  @return the list of children
    */
-  std::vector<Node*> getChildren() const {return children;}
+  const std::vector<Node*> &getChildren() const {return children;}
 };
 
 /**

@@ -2,7 +2,8 @@
 
 This repository contains a C++ implementation of the Merkle R-tree [YPPK09]
 and the corresponding algorithms for spatial query verification.
-The project uses LibreSSL (https://www.libressl.org) for SHA-256 hash computations
+The project uses LibreSSL (https://www.libressl.org) for SHA-256 hash computations,
+libmorton (https://github.com/Forceflow/libmorton) for computing Z-orders in 2D
 and Vince's CSV parser (https://github.com/vincentlaucsb/csv-parser) for reading CSV files.
 
 ## References

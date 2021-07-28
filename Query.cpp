@@ -46,7 +46,8 @@ VObject *query(Node *r, const Rectangle &q) {
   if (!r) return NULL;
   // If the node is a leaf, we construct a VO with all its points.
   if (r->getType() == N_LEAF) {
-    return new VLeaf(std::move(((LeafNode*) r)->getData()));
+    const std::vector<Record> &data = ((LeafNode*) r)->getData();
+    return new VLeaf(data);
   }
   // Otherwise, we need to check if the MBR of the node intersects
   // the query rectangle.

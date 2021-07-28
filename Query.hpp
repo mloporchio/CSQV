@@ -33,7 +33,7 @@ class VLeaf : public VObject {
 private:
   std::vector<Record> data;
 public:
-  VLeaf(std::vector<Record> data) : VObject(V_LEAF), data(std::move(data)) {}
+  VLeaf(const std::vector<Record> &data) : VObject(V_LEAF), data(data) {}
   const std::vector<Record> &getData() const {return data;}
   size_t getSize() const {return data.size();}
 };
