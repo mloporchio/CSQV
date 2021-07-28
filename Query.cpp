@@ -4,11 +4,6 @@
  */
 
 #include "Query.hpp"
-#include <deque>
-#include <map>
-#include <stack>
-#include <utility>
-#include <iostream>
 
 /**
  *  Counts the number of records inside the verification object.
