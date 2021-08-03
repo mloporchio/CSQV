@@ -23,21 +23,20 @@ struct Record {
   #ifdef Z_INDEX
   uint_fast64_t z_index; ///< Morton index of the location
   #endif
-};
 
-/**
- *  Record comparison function.
- *  @param e1 the first record
- *  @param e2 the second record
- *  @return true if and only if the first record precedes the second
- */
-static inline bool record_cmp(const Record &e1, const Record &e2) {
-  #ifdef Z_INDEX
-  return e1.z_index < e2.z_index;
-  #else
-  return e1.loc < e2.loc;
-  #endif
-}
+  /**
+   *  "Strictly-less than" operator for record comparison.
+   *  @param e record to be compared with the current one
+   *  @return true if and only if the current record precedes the other one
+   */
+  bool operator<(const Record &e) const {
+    #ifdef Z_INDEX
+    return z_index < e.z_index;
+    #else
+    return loc < e.loc;
+    #endif
+  }
+};
 
 /**
  *  Checks if a given record matches a query.

@@ -49,7 +49,7 @@ IntNode *make_internal(std::vector<Node*> children) {
  */
 Node *packed(std::vector<Record> &data, size_t c) {
   // Sort the records in ascending order.
-  std::sort(data.begin(), data.end(), record_cmp);
+  std::sort(data.begin(), data.end());
   // Create the leaves by splitting the list of points in chunks of size c.
   std::vector<Node*> curr;
   curr.reserve(N_PARTS(data.size(), c));
@@ -67,7 +67,7 @@ Node *packed(std::vector<Record> &data, size_t c) {
       std::vector<Node*> temp(curr.begin()+l, curr.begin()+r);
       merged.push_back(make_internal(std::move(temp)));
     }
-    curr = merged;
+    curr = std::move(merged);
   }
   // Return the only node left.
   return curr[0];
